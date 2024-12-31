@@ -1,0 +1,468 @@
+micro_httpd
+Linux/5.10.60-qnap,UPnP/1.0,PortableSDKforUPnPdevices/1.6.22
+GEM ver1
+Safedog/4.0.0
+Embedthis-Appweb/3.4.2
+LOVE
+Goahead/2.5.0 PeerSec-MatrixSSL/3.2.1-OPEN
+streamserver
+HTTPD_ac1.0
+squid/3.5.20
+Microsoft-IIS/7.0
+lighttpd/1.4.25-devel-v2.2.24-45-gc66fb0e4
+Innbox_webserv
+WebSphere Application Server/7.0
+Satrack
+Dr.COM Server
+AvigilonGateway/1.0 Microsoft-HTTPAPI/2.0
+Oracle XML DB/Oracle Database
+Microsoft-HTTPAPI/2.0
+APPWebs/
+RTK Web 0.9
+ZLMediaKit(git hash:b4207240,branch:master,build time:Nov  2 2021 11:36:02)
+WintenDo
+Network_Module/1.0 (RX-V581)
+TOPSEC
+mhttpd v1.1
+WWW Server/1.1
+uhttpd/1.0.0
+L7Engine
+RomPager/4.07 UPnP/1.0
+boss/1.0 (BOSS)
+WebsServer
+none
+Microsoft-IIS/7.5
+mongo/2.0
+TwistedWeb/18.4.0
+Linux/2.6.21, UPnP/1.0, Portable SDK for UPnP devices/1.3.1
+axhttpd/1.5.3
+sslvpn 1.0
+HFS 2.3c
+fwebserver
+ReeCam IP Camera
+Electrex HTTPserver
+miniupnpd/1.0 UPnP/1.0
+NBB-414
+Indy/9.0.11
+squid/3.1.20
+BlueServer/5.5.4.1
+Linux,WEBACCESS/1.0,DIR-850LVer1.06
+LIVE555 Streaming Media v2020.04.24
+squid/4.13
+nginx-rc
+gunicorn
+Server Version 11.0
+web server
+RapidLogic/1.1
+<title>Zabbix Zabbix</title>
+Jetty(i-jetty 6.0-1570509416)
+IPC@CHIP
+Seeyon-Server/1.0
+mcdhttpd/1.2
+openresty/1.13.6.2
+TwistedWeb/12.1.0
+openresty/1.15.8.1
+secure
+Microsoft-IIS/6.0
+CJServer/1.1
+thttpd/2.29 23May2018
+PRTG/19.4.52.3515
+orbis
+Clayster.Library.Internet/1.1
+Embedthis-Appweb/3.3.1
+Arcadyan httpd 1.0
+Werkzeug/0.14.1Python/3.7.3
+SRS/4.0.161(Leo)
+Router Webserver
+Webio Embedded server v1.0
+hmhttpd/1.24-20160808
+BigIP
+HtNanoHttpd
+Jetty(9.4.z-SNAPSHOT)
+HASP LM/16.00
+Neobox Web Server
+kangle/3.5.8.2
+Jetty(7.6.13.v20130916)
+chan-cubox
+Sunny WebBox
+XCDN
+Http Server
+kx-ns1000
+demce.tk
+Jetty(winstone-2.8)
+Ruijie Servrer
+Mini web server 2.0 CDATA corp 2017.
+vws 1.7.12
+WSGIServer/0.2 CPython/3.7.7
+CradlepointHTTPService/1.0.0
+DasanNetwork Solution
+LSWebServer/1.0.0
+TASK-SERVER-NAS
+REST-Webs
+Docker/17.03.0-ce (linux)
+IPCamera-Webs/2.5.0
+WildFly/10
+lighttpd/1.4.26-devel-v14.07.2
+Titan
+Wintendo 1.3.3.7
+e7fd6736-5b0f-4af1-54a0-c95a00f208b
+Keil-EWEB/2.0
+H3C-Miniware-Webs
+CherryPy/3.1.2 WSGI Server
+CE_E
+PasteWSGIServer/0.5 Python/2.7.6
+alphapd/2.1.8
+HTTPD_ac 1.0
+FC03-HTTPS
+Sierra Wireless Inc, Embedded Server
+BackupSystem
+Oracle-HTTP-Server-11g
+-
+uc-httpd/1.0.0
+appnode/ccenter
+GoAhead-Webs/2.5.0PeerSec-MatrixSSL/3.1.3-OPEN
+squid/3.5.12
+openresty/1.19.9.1
+squid
+mini_httpd/1.1919dec2003
+TP-LINK HTTPD/1.0
+TeleEye/1.1
+Resin/3.1.8
+IdeaWebServer/0.83.415
+Linux/2.6.36, UPnP/1.0, Portable SDK for UPnP devices/1.3.1
+cdn
+OrientDB Server v.2.2.22 (build fb2b7d321ea8a5a5b18a82237049804aace9e3de)
+GoAhead-Webs/2.5.0 PeerSec-MatrixSSL/3.4.2-OPEN
+sposhttpd/4.8
+K2
+CUPS/1.7 IPP/2.1
+Sanoil Bayi Portal
+Oracle XML DB/Oracle9i Enterprise Edition Release 9.2.0.1.0 - Production
+IS2 Web Server 1.36
+JAWS/1.0 Aug 26 2015
+Jetty(i-jetty 3.8)
+Abyss/2.8.0.5-X2/B2-Win32 AbyssLib/2.8.0.1
+Apache/2.4.43 (Unix) OpenSSL/1.1.1g
+Asterisk/13.13.1
+WSGIServer/0.2 CPython/3.8.5
+BarracudaHTTP 4.0
+Cherokee/0.99.9 (UNIX)
+Jetty(6.1.x)
+Werkzeug/2.2.3 Python/3.10.11
+iVMS-Web
+sundray
+gws
+router webs
+HTTP Server 1.0
+Rumpus
+Stoneoim
+Linux,STUNNEL/1.0,DIR-850LVer1.13
+Werkzeug/0.14.1 Python/3.7.3
+SonicWALL
+<title>Plex Media plexnifique,Plex Media Server</title>
+Alpha_webserv
+Unknown
+ScreenConnect/21.14.5924.8013-1372366428 Microsoft-HTTPAPI/2.0
+Embedthis-http/4.0.0
+cc-web/1.6.3
+TwistedWeb/13.2.0
+tinyproxy/1.11.1
+NVR EXT SERVER
+Resin/4.0.36
+Safedog WAF
+Jexus/5.8.2.21 Linux
+Cassini/5.0.4.0
+Apache/2.4.9 (Win32) OpenSSL/1.0.1g PHP/5.5.11
+FN-Httpd 1.0 [HTTP/1.1]
+StartHTTP-Server/1.1
+ksc/1223
+localhost
+WebSockify Python/2.7.12
+sw-cp-server
+Astra
+Jetty(6.1.26.hwx)
+HP-iLO-Server/1.30
+ZLMediaKit-5.0(build in Apr  8 2021 03:17:35)
+Gnway Web Server
+Output-Streamer/0.2
+Mathopd/1.5p6
+SonicWALL SSL-VPN Web Server
+TornadoServer/6.0.4
+SEPM
+openresty/1.15.8.3
+yealink embed httpd
+MoxaHttp/2.3
+Server
+Easy-html
+Boa/0.93.15
+nginx-more
+eCos
+IPCGK7101HttpServer1.0
+gunicorn/20.0.4    831
+Ruijie Server
+TornadoServer/4.4.3
+swoole-http-server
+Jetty(9.2.14.v20151106)
+WebSphere Application Server/6.1
+nginx/1.19.1
+BaseHTTP/0.3 Python/2.7.5
+WSGIServer/0.1 Python/2.7.12
+openresty/1.19.3.1
+adong
+HttpServer
+Mongoose/6.11
+phpiis.com
+Ag [47]
+H3C-CVM
+mini_httpd
+gaaa
+RealVNC/E4
+DWS
+eWON
+Boa/0.94.14rc21
+CherryPy/3.2.5
+HFS 2.3 beta
+gunicorn/19.8.1
+lighttpd/1.4.19
+Webs
+shield
+SRS/4.0.201(Leo)
+NVR Web server
+Indy/9.0.50
+Web/0.02.07
+SinforHttpd/1.0
+X-web
+Abyss/2.7.0.0-X1-Win32 AbyssLib/2.7.0.0
+WebServer/1.0
+uc-httpd 1.0.0
+HCMSActiveX Viewer
+fasthttp
+MiniServ/1.610
+nginx/1.14.2
+AkamaiGHost
+Docker/19.03.8 (linux)
+Cimer
+WebBox-20
+Switch
+JAWS/1.0 Apr  8 2014
+Splunkd
+Docker/20.10.6 (linux)
+nginx-V-ddos
+WMSServer/2.0.1.0
+RTKWeb0.9
+Werkzeug/2.0.1 Python/3.7.11
+FPBX-14.0.17(13.38.3)
+QWS
+VA Web Server
+mORMot (Windows) Microsoft-HTTPAPI/2.0
+HTTP Server
+Microsoft-IIS/5.1
+WebServer-Webs/2.5.0
+HFS 2.4.0 RC7
+thttpd/2.25b PHP/20030920
+ttyd/1.6.3(libwebsockets/4.3.2-20221001-705-gae12d2f77)
+Web Server/1.0
+Octopus Deploy/ Microsoft-HTTPAPI/2.0
+IST OIS
+gunicorn/19.7.0
+squid/4.14
+WindRiver-WebServer/4.5
+Jetty(7.6.0.v20120127)
+Cross Web Server
+Check Point SVN foundation
+Linux,WEBACCESS/1.0,DIR-860LVer1.07
+4fd7d672-bbd6-f059-9dff-51e02d6e25ee
+TornadoServer/5.0.2
+h2o/2.3.0-DEV@1d12c355
+VIAWEB system/1.0.0 (http://www.viawebsystem.com.br)
+GoAhead-Webs/2.5.0 PeerSec-MatrixSSL/3.1.3-OPEN
+DNVRS-Webs
+K1
+SuperSign
+thttpd/2.25b-lxc 29dec2003
+Unkown
+cloudflare-nginx
+SimpleHTTPWithUpload/0.1 Python/2.7.5
+Apache/2.4.12 (Win32) OpenSSL/1.0.1l PHP/5.6.8
+Nexus/3.9.0-01 (OSS)
+tsbox
+lighttpd/1.4.54
+728/09824  HTTP Server version 2.0 - TELDAT S.A.
+mpd web server
+TwistedWeb/8.2.0
+TeamSpeak Server 3.13.2
+RomPager/4.51 UPnP/1.0
+WCY_WEBServer/2.0
+DOSarrest
+Tengine/1.5.2
+BaseHTTP/0.3 Python/2.7.17
+Python/3.11 aiohttp/3.8.5
+LOS HTTP Server 1.0
+Trend Chip UPnP/1.0 DMS
+lighttpd/1.4.37
+Polycom SoundPoint IP Telephone HTTPd
+lighttpd/1.4.28-devel-171:172M
+hidden
+Mini web server 1.0 ZTE corp 2005.
+d7b452-d70-1255-4515-9b56f13a6dab
+SimpleHTTP/0.6 Python/2.7.16
+lwIP/1.4.0 (http://savannah.nongnu.org/projects/lwip)
+Apache/1.3.31 (Unix)
+FunshionService1.0.1.63Beta
+Werkzeug/2.0.1 Python/3.6.9
+Qualvision -HTTPServer
+waitress
+CouchDB/2.1.0 (Erlang OTP/17)
+Resin/4.0.58
+nginx/0.7.64
+Destiny
+Streamd
+HTTPD_gw 1.0
+BaseHTTP/0.3 Python/2.7.10
+Boa/0.94.11
+Cloud
+openresty/1.11.2.1
+squid/3.1.23
+lighttpd/1.4.61
+jjhttpd v0.1.0
+nginx-upupw/1.8.0
+c01.sfy.nod
+gunicorn/19.4.5
+Linux/2.6.30.9-cig-4, UPnP/1.0, Portable SDK for UPnP devices/1.6.18
+Werkzeug/0.10.4 Python/2.7.1
+TwistedWeb/20.3.0
+Linux/2.6.5-it0, UPnP/1.0, Intel SDK for UPnP devices /1.2
+ch
+Beaver
+ATS/7.0.0
+Microsoft-IIS/8.5
+Jetty(9.4.33.v20201020)
+mginx
+contiki
+Tengine/2.1.2
+Tableau
+BlueServer/5.1.0.4
+Tengine/2.3.2
+ComfileHMI Runtime
+Icecast 2.4.2
+Linux/4.4.180+, UPnP/1.0, Portable SDK for UPnP devices/1.12.1
+ZLMediaKit(git hash:1292ec6,branch:master,build time:Sep 29 2021 18:28:24)
+AirTunes/377.30.01
+bks400
+Linux,WEBACCESS/1.0,DIR-850LVer1.13
+uc-httpd1.0.0
+AirDroid 2.0
+MobileSMARTS/5.2.46.14758 Microsoft-HTTPAPI/2.0
+TOSHIBA TEC CORPORATION
+RomPager/4.07
+Jetty(9.3.5.v20151012)
+wanduck
+Coruscant
+Apache
+HFS 2.4.0 RC6
+XovisPCSeries
+awselb/2.0
+pve-api-daemon/3.0
+nPerf/2.2.0 2019-04-02
+httpd/2.0
+HTTPServer
+yawcam/0.6.0
+K2P
+Jetty(8.2.0.v20160908)
+fibjs
+lighttpd/1.4.28-devel-10177
+airCube
+OpenCms/11.0.2
+webs
+lighttpd/1.4.35
+nginx-reuseport/1.13.4
+MQCache/2.1.0
+Keil-EWEB/2.1
+nhttpd/3.4.0 (yhttpd_core/1.3.2)
+gSOAP/2.7
+Linux/3.0.8, UPnP/1.0, Portable SDK for UPnP devices/1.6.19
+JAWS/1.0Mar172016
+JAWS/1.0Oct232015
+Jetty/5.1.x(Linux/2.6.26-2-686i386java/1.6.0_22
+ZTE-Webs/2.5.0 PeerSec-MatrixSSL/3.1.3-OPEN
+
+DGuard Center 7.1.6.9
+ReeCamIPCamera
+GoAhead-Webs/2.5.0
+(null)
+MochiWeb/1.0 (Any of you quaids got a smint?)
+Snorkel/02.03.00.04
+RomPager/4.37
+ioLogik Web Server/1.0
+hts_server
+Docker/20.10.2 (linux)
+mini_httpd/1.27 07Mar2017
+debut/1.30
+gSOAP/2.8
+Httpd
+PanWeb Server/ -
+Linux UPnP/1.0 Huawei-ATP-IGD
+K3
+dcs-lig-httpd
+WhoAmI
+TOS/1.12.1
+Linux/2.x.x, UPnP/1.0, pvConnect UPnP SDK/1.0, Twonky UPnP SDK/1.1
+Serv-U/15.3.2.155
+Jetty(6.1.14)
+Huawei Auth-Http Server 1.0
+Roku/10.0.0 UPnP/1.0 Roku/10.0.0
+nginx/1.10.1
+httpserver1.0
+Web Switch
+DVRDVS-Webs
+xxxx
+PoweredbyElectronicArts
+WebServer2
+WVS
+Boa/0.94.14rc20
+mini_httpd/1.21 18oct2014
+StreamSystem 4.0
+CherryPy/8.6.0
+ThunderDcdn
+Embedded HTTP Server.
+GlassFish Server Open Source Edition  4.1.2
+Jetty(6.1.26)
+UPnP/1.0 DLNADOC/1.50
+GoAhead-Webs
+CrushFTP HTTP Server
+WSTL CPE 1.0
+RGOS HTTP-Server/1.1
+Reposify
+OPNsense
+Linux/3.18.20, UPnP/1.0, Portable SDK for UPnP devices/1.6.21
+Kerio Connect 7.0.1
+HTTPD1.0
+kngx/1.10.2
+cwpsrv
+NetDataEmbeddedHTTPServer20200416-1574-g011c015a6
+convesio/2.1
+iPlanet-Web-Proxy-Server/3.6
+httpd_gargoyle/1.0 14mar2008
+H3C-CVM    5049
+openresty/1.11.2.5
+Apache/2.4.27 (Unix) OpenSSL/1.0.2k
+WebServer
+cPanel
+Nexus/3.0.0-03 (OSS)
+Intoto Http Server v1.0
+GoAheadWebs
+mini_httpd/1.24 10May2016
+Caddy
+MiniServ/1.941
+openresty/1.17.8.2
+iSpy
+Kerio Connect 9.2.8 patch 1
+SRS/5.0.12(Leo)
+A8000
+SY8045
+Microsoft-WinCE/6.00
+Jetty(9.4.44.v20210927)
+Mini web server 1.0 ZXIC corp 2005.
+Caddy v0.11.1
+3S_WebServer
+RainLoop

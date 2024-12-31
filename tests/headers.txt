@@ -1,0 +1,2 @@
+WWW-Authenticate: Basic realm="DVR"
+WWW-Authenticate: Basic realm="Broadband Router"

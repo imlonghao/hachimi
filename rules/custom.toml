@@ -1,0 +1,427 @@
+[[rule]]
+name = "T3"
+rule = "hasPrefix(data.Data, \"t3 \")"
+tags = ["T3", "Weblogic"]
+version = 1
+
+[[rule]]
+name = "SMB"
+rule = "hasPrefixH(unquote(data.Data),\"00\")&&indexOfH(unquote(data.Data),\"53 4d 42\")==5"
+tags = ["SMB","NetBIOS"]
+version = 1
+
+[[rule]]
+name = "HTTP2"
+rule = "hasPrefix(data.Data, \"PRI * HTTP/2.0\")"
+tags = ["HTTP","HTTP2"]
+version = 1
+[[rule]]
+name = "banner-probe"
+rule = "data.Data==\"\\\\r\\\\n\\\\r\\\\n\""
+tags = ["probe","banner-probe","scan","nmap"]
+version = 1
+[[rule]]
+name = "http-probe"
+rule = "data.Data==\"GET / HTTP/1.0\\\\n\\\\n\""
+tags = ["probe","http-probe"]
+version = 1
+
+[[rule]]
+name = "synobtrfsreplicad"
+rule = "indexOfH(unquote(data.Data),\"53 4d 42\")!=-1"
+tags = ["probe","synobtrfsreplicad","scan","nmap"]
+version = 1
+[[rule]]
+name = "DNSVersionBindReqTCP"
+rule = "compareBytesH(unquote(data.Data),\"001e0006010000010000000000000776657273696f6e0462696e640000100003\")"
+tags = ["probe","DNSVersionBindReqTCP","scan","nmap"]
+version = 1
+
+
+[[rule]]
+name = "Redis"
+rule = "hasPrefixH(unquote(data.Data),\"2a310d0a\")"
+tags = ["probe","Redis","scan"]
+version = 1
+
+
+[[rule]]
+name = "Redis-1"
+rule = "hasPrefixH(unquote(data.Data),\"494e464f0a\")"
+tags = ["probe","Redis","scan"]
+version = 1
+
+[[rule]]
+name = "Redis-2"
+rule = "hasPrefixH(unquote(data.Data),\"696e666f0a\")"
+tags = ["probe","Redis","scan"]
+version = 1
+
+
+#0\f\x02\x01\x01`\a\x02\x01\x03\x04\x00\x80\x00
+
+[[rule]]
+name = "LDAP"
+rule = "hasPrefixH(unquote(data.Data),\"300c020101600702010204008000\")"
+tags = ["probe","LDAP","scan","ASN.1"]
+version = 1
+
+
+[[rule]]
+name = "LDAP-LIKE"
+rule = "hasPrefixH(unquote(data.Data),\"31\")&&indexOfH(unquote(data.Data),\"0201\")!=-1"
+tags = ["probe","LDAP","scan","ASN.1"]
+version = 1
+
+
+
+[[rule]]
+name = "MongoDB"
+rule = "indexOfH(unquote(data.Data),\"00\")!=-1&&indexOfH(unquote(data.Data),\"2e24636d64\")!=-1"
+tags = ["probe","MongoDB","scan","Mongo"]
+version = 1
+
+[[rule]]
+name = "rsync"
+rule = "hasPrefix(data.Data, \"@RSYNCD\")"
+tags = ["probe","scan","rsync"]
+version = 1
+
+[[rule]]
+name = "AQMP"
+rule = "hasPrefix(data.Data, \"AQMP\")"
+tags = ["probe","scan","AQMP"]
+version = 1
+
+[[rule]]
+name = "ADB"
+rule = "hasPrefixH(unquote(data.Data),\"434e584e000000\")"
+tags = ["probe","scan","ADB"]
+version = 1
+
+[[rule]]
+name = "HTTP-Proxy"
+rule = "hasPrefix(data.Data, \"CONNECT \")"
+tags = ["probe","scan","HTTP-Proxy","Proxy"]
+version = 1
+
+[[rule]]
+name = "SMTP-EHLO"
+rule = "hasPrefix(data.Data, \"EHLO \")"
+tags = ["probe","scan","SMTP-EHLO","SMTP"]
+version = 1
+
+[[rule]]
+name = "HTTP-probe-1"
+rule = "hasPrefix(data.Data, \"GET / HTTP\")"
+tags = ["probe","scan","HTTP"]
+version = 1
+
+
+[[rule]]
+name = "HTTP-probe-2"
+rule = "hasPrefix(data.Data, \"GET /favicon.\")"
+tags = ["probe","scan","HTTP"]
+version = 1
+
+
+[[rule]]
+name = "HTTP-probe-3"
+rule = "hasPrefix(data.Data, \"GET /robots.txt\")"
+tags = ["probe","scan","HTTP"]
+version = 1
+
+[[rule]]
+name = "HTTP-probe-4"
+rule = "hasPrefix(data.Data, \"GET /sitemap.xml\")"
+tags = ["probe","scan","HTTP"]
+version = 1
+
+#todo 判断是否当前host
+[[rule]]
+name = "HTTP-Proxy-1"
+rule = "hasPrefix(data.Data, \"GET http://\")"
+tags = ["probe","scan","HTTP-Proxy","Proxy"]
+version = 1
+
+
+[[rule]]
+name = "HTTP-Proxy-2"
+rule = "hasPrefix(data.Data, \"GET https://\")"
+tags = ["probe","scan","HTTP-Proxy","Proxy"]
+version = 1
+
+[[rule]]
+name = "OPC-UA"
+rule = "hasPrefix(data.Data, \"HELF\")"
+tags = ["probe","scan","OPC-UA","Industrial-control"]
+version = 1
+
+[[rule]]
+name = "iKettle"
+rule = "hasPrefix(data.Data, \"HELLOKETTLE\")"
+tags = ["probe","scan","iKettle","IOT"]
+version = 1
+
+[[rule]]
+name = "SIP"
+rule = "hasPrefix(data.Data, \"OPTIONS sip:\")||hasPrefix(data.Data, \"INVITE sip:\")"
+tags = ["probe","scan","SIP","VOIP"]
+version = 1
+
+
+#https://github.com/SySS-Research/slig/tree/master
+
+[[rule]]
+name = "Siemens-Logo!"
+rule = "hasPrefixH(unquote(data.Data),\"4bc001e0\")"
+tags = ["probe","scan","Siemens","Siemens-Logo!","Industrial-control"]
+version = 1
+
+
+[[rule]]
+name = "MGLNDD"
+rule = "hasPrefix(data.Data, \"MGLNDD_\")"
+tags = ["probe","scan","MGLNDD","stretchoid.com"]
+version = 1
+
+#https://github.com/tothi/pwn-hisilicon-dvr
+[[rule]]
+name = "hisilicon-DVR"
+rule = "hasPrefix(data.Data, \"OpenTelnet:OpenOnce\")"
+tags = ["probe","scan","EXP","DVR","hisilicon-DVR","backdoor"]
+version = 1
+
+[[rule]]
+name = "SAProuter"
+rule = "hasPrefix(data.Data, \"ROUTER_ADM\")"
+tags = ["probe","scan","SAProuter","SAP"]
+version = 1
+
+[[rule]]
+name = "SSH"
+rule = "hasPrefix(data.Data, \"SSH-2.0\")"
+tags = ["probe","scan","SSH"]
+version = 1
+
+[[rule]]
+name = "probe-1"
+rule = "data.Data==\"\\n\""
+tags = ["probe","scan"]
+version = 1
+
+[[rule]]
+name = "probe-2"
+rule = "data.Data==\"\\r\\n\""
+tags = ["probe","scan"]
+version = 1
+[[rule]]
+name = "probe-3"
+rule = "compareBytesH(unquote(data.Data),\"0a00\")"
+tags = ["probe","scan"]
+version = 1
+[[rule]]
+name = "probe-4"
+rule = "compareBytesH(unquote(data.Data),\"0000000000\")"
+tags = ["probe","scan"]
+version = 1
+[[rule]]
+name = "probe-5"
+rule = "compareBytesH(unquote(data.Data),\"0000000000000000000000000000000000000000\")"
+tags = ["probe","scan"]
+version = 1
+
+
+[[rule]]
+name = "probe-6"
+rule = "hasPrefixH(unquote(data.Data),\"686900\")"
+tags = ["probe","scan"]
+version = 1
+
+
+
+
+
+[[rule]]
+name = "FTP"
+rule = "hasPrefix(data.Data, \"USER anonymous\")"
+tags = ["probe","scan","FTP","anonymous"]
+version = 1
+
+
+[[rule]]
+name = "Oracle TNS"
+rule = "indexOfH(unquote(data.Data),\"28434f4e4e4543545f444154413d\")!=-1"
+tags = ["probe","Oracle-TNS","Oracle","scan","database"]
+version = 1
+
+
+#port 3699 NEW!!
+[[rule]]
+name = "NebulaGraph"
+rule = "indexOfH(unquote(data.Data),\"1804726f6f7418066e6562756c61\")!=-1"
+tags = ["probe","NebulaGraph ","brute-force","database"]
+version = 1
+
+
+
+# 海康威视摄像头?
+#https://reverland.github.io/python/2015/04/07/python-spider-camera-find/
+[[rule]]
+name = "hisilicon-DVR"
+rule = "hasPrefixH(unquote(data.Data),\"000000545a\")"
+tags = ["probe","scan","EXP","hikvision"]
+version = 1
+
+
+[[rule]]
+name = "PostgreSQL"
+rule = "compareBytesH(unquote(data.Data),\"0000000804d2162f\")||hasPrefixH(unquote(data.Data),\"00\")&&indexOf(data.Data,\"extra_float_digits\")!=-1||compareBytesH(unquote(data.Data),\"0000000800100000\")"
+tags = ["probe","PostgreSQL","scan","database"]
+version = 1
+
+[[rule]]
+name = "RocketMQ CVE-2023-37582"
+rule = "indexOf(data.Data,\"serializeTypeCurrentRPC\")!=-1&&indexOf(data.Data,\"opaque\")!=-1&&indexOf(data.Data,\"code\")!=-1&&indexOf(data.Data,\"language\")!=-1"
+tags = ["probe","CVE-2023-37582","RocketMQ","EXP","MQ"]
+version = 1
+
+[[rule]]
+name = "ActiveMQ"
+rule = "hasPrefixH(unquote(data.Data),\"00\")&&indexOf(data.Data,\"ActiveMQ\")!=-1"
+tags = ["probe","ActiveMQ","scan","MQ"]
+version = 1
+
+[[rule]]
+name = "Kerberos"
+rule = "compareBytesH(unquote(data.Data),\"000000716ac2816e30c2816bc2a103020105c2a20302010ac2a4c2815e305cc2a00703050050c2800010c2a2041b024e4dc2a3173015c2a003020100c2a10e300c1b066b72627467741b024e4dc2a511180f31393730303130313030303030305ac2a70602041f1ec2b9d9a8173015020112020111020110020117020101020103020102\")"
+tags = ["probe","Kerberos","scan"]
+version = 1
+
+#https://svn.nmap.org/nmap/scripts/pptp-version.nse
+
+[[rule]]
+
+name = "pptp"
+rule = "hasPrefixH(unquote(data.Data),\"009c00011a2b3c4d\")"
+tags = ["probe","pptp","scan","nmap"]
+version = 1
+
+
+#https://github.com/sjhilt/Nmap-NSEs/blob/master/atg-info.nse
+#https://www.rapid7.com/blog/post/2015/11/18/the-internet-of-gas-station-tank-gauges-take-2/
+#Automated tank gauges (ATGs)
+[[rule]]
+name = "TLS-350"
+rule = "hasPrefixH(unquote(data.Data),\"014932303130300a\")"
+tags = ["probe","pptp","scan","TLS-350","Industrial-control"]
+version = 1
+
+[[rule]]
+name = "WMSRequest"
+rule = "hasPrefixH(unquote(data.Data),\"010000fdcefa0bb0a00000004d4d53\")"
+tags = ["probe","scan","WMSRequest"]
+version = 1
+
+[[rule]]
+name = "FastCGI"
+rule = "hasPrefixH(unquote(data.Data),\"01010001000800000001000000000000\")"
+tags = ["probe","scan","FastCGI"]
+version = 1
+
+[[rule]]
+name = "PHP-FPM"
+rule = "hasPrefixH(unquote(data.Data),\"01010001000800000001000000000000\")&&indexOf(data.Data,\"php/fcgiclient\")!=-1"
+tags = ["probe","scan","FastCGI","PHP-FPM","EXP"]
+version = 1
+
+[[rule]]
+name = "RDP"
+rule = "hasPrefixH(unquote(data.Data),\"030000\")&&indexOfH(unquote(data.Data),\"e00000\")!=-1"
+tags = ["probe","scan","windows","rdp","msrdp"]
+version = 1
+
+[[rule]]
+name = "iSCSI"
+rule = "hasPrefixH(unquote(data.Data),\"03810000000000\")"
+tags = ["probe","scan","iSCSI"]
+version = 1
+
+
+[[rule]]
+name = "SCCP"
+rule = "hasPrefixH(unquote(data.Data),\"0a040000000000000000000000\")"
+tags = ["probe","scan","SCCP","VOIP"]
+version = 1
+
+[[rule]]
+name = "Socks4"
+rule = "hasPrefixH(unquote(data.Data),\"040100\")||hasPrefixH(unquote(data.Data),\"040101\")"
+tags = ["probe","scan","Socks4","Proxy"]
+version = 1
+
+
+[[rule]]
+name = "Socks5"
+rule = "hasPrefixH(unquote(data.Data),\"050100\")"
+tags = ["probe","scan","Socks5","Proxy"]
+version = 1
+
+
+
+[[rule]]
+name = "MQTT"
+rule = "hasPrefixH(unquote(data.Data),\"102000044d515454\")"
+tags = ["probe","scan","MQTT","MQ"]
+version = 1
+
+
+
+[[rule]]
+name = "MSSQL"
+rule = "hasPrefixH(unquote(data.Data),\"120100\")"
+tags = ["probe","scan","MSSQL","database"]
+version = 1
+#国密
+[[rule]]
+name = "UNKNOWN-1"
+rule = "hasPrefixH(unquote(data.Data),\"16010101f0\")"
+tags = ["probe","scan","gmtls"]
+version = 1
+
+[[rule]]
+name = "namp-2"
+rule = "hasPrefixH(unquote(data.Data),\"800000\")"
+tags = ["probe","scan","banner","nmap"]
+version = 1
+
+
+
+[[rule]]
+name = "memcache"
+rule = "hasPrefixH(unquote(data.Data),\"73746174730a\")||hasPrefixH(unquote(data.Data),\"76657273696f6e0d\")"
+tags = ["probe","scan","banner","nmap"]
+version = 1
+
+
+
+[[rule]]
+name = "DHT"
+rule = "hasPrefix(data.Data, \"d1:ad2:id20:\")"
+tags = ["probe","scan","DHT","BitTorrent"]
+version = 1
+
+#port 19000 下面几个是shodan的探针
+[[rule]]
+name = "LSV2"
+rule = "hasPrefixH(unquote(data.Data),\"00000008415f4c47494e535045435400\")"
+tags = ["probe","scan","LSV2","IOT"]
+version = 1
+
+
+#port 9418
+[[rule]]
+name = "GIT"
+rule = "indexOf(unquote(data.Data),\"git-upload-pack\")!=-1"
+tags = ["probe","scan","GIT","EXP"]
+version = 1
