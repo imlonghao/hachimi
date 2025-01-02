@@ -17,7 +17,7 @@ type JSONLLogger struct {
 }
 
 // NewJSONLLogger 创建 JSONLLogger
-func NewJSONLLogger(output string, maxSize int) (*JSONLLogger, error) {
+func NewJSONLLogger(output string, bufSize int) (*JSONLLogger, error) {
 	var file *os.File
 	var err error
 
@@ -36,8 +36,8 @@ func NewJSONLLogger(output string, maxSize int) (*JSONLLogger, error) {
 	logger := &JSONLLogger{
 		logChan: make(chan Loggable, 100),
 		writer:  file,
-		maxSize: maxSize,
-		buffer:  make([]Loggable, 0, maxSize),
+		maxSize: bufSize,
+		buffer:  make([]Loggable, 0, bufSize),
 	}
 	logger.wg.Add(1)
 	go logger.processLogs()

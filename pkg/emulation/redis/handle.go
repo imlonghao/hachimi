@@ -16,8 +16,8 @@ import (
 	"time"
 )
 
-func HandleRedis(conn net.Conn, session *types.Session) {
-	c := newConn(conn, 60)
+func HandleRedis(conn net.Conn, session *types.Session) bool {
+	c := newConn(conn, config.GetConfig().TimeOut)
 	list := map[string]bool{"acl": true,
 		"append":               true,
 		"asking":               true,
@@ -381,22 +381,24 @@ func HandleRedis(conn net.Conn, session *types.Session) {
 	sess.SessionID = session.ID
 	sess.Service = "redis"
 	sess.StartTime = time.Now()
-	sess.SrcIP = session.SrcIP
-	sess.SrcPort = session.SrcPort
-	sess.DstPort = session.DstPort
-	sess.DstIP = session.DstIP
 	defer func() {
 		sess.EndTime = time.Now()
 		sess.Duration = int(sess.EndTime.Sub(sess.StartTime).Milliseconds())
 		config.Logger.Log(sess)
 	}()
-
-	sess.DstIP, _, _ = net.SplitHostPort(conn.LocalAddr().String())
 	for {
 		request, err := parseRequest(c)
 		if err != nil {
 			sess.Error = true
-			return
+			if err == io.EOF {
+				return true
+			} else {
+				if len(sess.Data) == 0 {
+					return false //降级到非redis
+				}
+			}
+			return true
+
 		} else if strings.ToLower(request.Name) == "auth" {
 			if len(request.Args) == 1 {
 				sess.PassWord = string(request.Args[0])
@@ -428,6 +430,9 @@ func HandleRedis(conn net.Conn, session *types.Session) {
 			conn.Write([]byte("+OK\r\n"))
 		} else {
 			conn.Write([]byte("-ERR unknown command '" + request.Name + "'\r\n")) //返回指纹特征 便于搜索引擎记录
+			//if len(sess.Data) == 0 {
+			//	return false //降级到非redis
+			//}
 		}
 		var arg string
 		arg = request.Name + " "
@@ -449,7 +454,7 @@ func HandleRedis(conn net.Conn, session *types.Session) {
 		*/
 
 	}
-	return
+	return true
 }
 
 type Request struct {

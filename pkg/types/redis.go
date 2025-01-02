@@ -6,16 +6,13 @@ import (
 )
 
 type RedisSession struct {
+	Session
 	ID        string    `gorm:"primaryKey" json:"id"`
 	SessionID string    `gorm:"index" json:"session_id"`
 	Protocol  string    `gorm:"index" json:"protocol"`
 	StartTime time.Time `gorm:"index" json:"start_time"`
 	EndTime   time.Time `gorm:"index" json:"end_time"`
 	Duration  int       `json:"duration"`
-	SrcIP     string    `gorm:"index" json:"src_ip"`
-	SrcPort   int       `gorm:"index" json:"src_port"`
-	DstIP     string    `gorm:"index" json:"dst_ip"`
-	DstPort   int       `gorm:"index" json:"dst_port"`
 	Error     bool      `json:"error"`
 	Service   string    `json:"service"`
 	Data      string    `json:"data"`

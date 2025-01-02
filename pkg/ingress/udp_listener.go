@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 	"net"
-	"strconv"
 	"sync"
 )
 
@@ -18,15 +17,7 @@ type UDPListener struct {
 }
 
 // NewUDPListener creates a new UDPListener instance.
-func NewUDPListener(address string) *UDPListener {
-	host, portStr, err := net.SplitHostPort(address)
-	if err != nil {
-		log.Fatalf("Failed to split UDP listener address: %s\n", err)
-	}
-	port, err := strconv.Atoi(portStr)
-	if err != nil {
-		log.Fatalf("Failed to parse UDP listener port: %s\n", err)
-	}
+func NewUDPListener(host string, port int) *UDPListener {
 	return &UDPListener{
 		Host: host,
 		Port: port,

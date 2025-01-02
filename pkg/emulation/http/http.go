@@ -3,12 +3,15 @@ package http
 import (
 	"fmt"
 	"github.com/fsnotify/fsnotify"
+	"github.com/google/uuid"
 	"github.com/traefik/yaegi/interp"
 	"github.com/traefik/yaegi/stdlib"
 	"github.com/valyala/fasthttp"
+	"hachimi/pkg/config"
 	"hachimi/pkg/plugin"
 	"hachimi/pkg/plugin/symbols"
 	"hachimi/pkg/types"
+	"io"
 	"log"
 	"net"
 
@@ -18,6 +21,28 @@ import (
 )
 
 var serverPool sync.Pool
+
+func HandleHttp(conn net.Conn, session *types.Session) {
+	httpLog := &types.Http{Session: *session}
+	httpLog.StartTime = session.StartTime
+	httpLog.ID = uuid.New().String()
+	httpLog.SessionID = session.ID
+	httpLog.Header = make(map[string]string)
+	httpLog.BodyParam = make(map[string]string)
+	httpLog.UriParam = make(map[string]string)
+	httpLog.IsHandled = true
+	err := ServeHttp(conn, func(fasthttpCtx *fasthttp.RequestCtx) {
+		// 在 requestHandlerFunc 中传递 ctx
+		RequestHandlerFunc(httpLog, fasthttpCtx)
+	})
+	httpLog.EndTime = time.Now()
+	httpLog.Duration = int(httpLog.EndTime.Sub(httpLog.StartTime).Milliseconds())
+	if err != nil {
+		httpLog.IsHandled = false
+		io.ReadAll(conn) //出错继续读取
+	}
+	config.Logger.Log(httpLog)
+}
 
 func ServeHttp(c net.Conn, handler fasthttp.RequestHandler) error {
 	v := serverPool.Get()

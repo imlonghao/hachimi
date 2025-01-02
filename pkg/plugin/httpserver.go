@@ -6,6 +6,7 @@ import (
 	"github.com/fasthttp/router"
 	"github.com/valyala/fasthttp"
 	"hachimi/pkg/types"
+	"hachimi/pkg/utils"
 	"log"
 	"net"
 	"os"
@@ -84,14 +85,23 @@ func RequestHandler(plog *types.Http, ctx *fasthttp.RequestCtx) {
 		esSearch(ctx)
 		return
 	}
-
+	plog.Method = string(ctx.Method())
+	plog.Host = string(ctx.Host())
+	plog.UA = string(ctx.UserAgent())
+	plog.Body = utils.EscapeBytes(ctx.Request.Body())
+	plog.RawHeader = string(ctx.Request.Header.Header())
 	ctx.Request.Header.VisitAll(func(key, value []byte) {
 		plog.Header[string(key)] = string(value)
 	})
 	if string(ctx.Request.Header.Cookie("rememberMe")) != "" {
 		ctx.Response.Header.Set("Set-Cookie", "rememberMe=deleteMe; Path=/; Max-Age=0;")
 	}
-
+	ctx.QueryArgs().VisitAll(func(key, value []byte) {
+		plog.UriParam[string(key)] = string(value)
+	})
+	ctx.PostArgs().VisitAll(func(key, value []byte) {
+		plog.BodyParam[string(key)] = string(value)
+	})
 	ctx.URI().DisablePathNormalizing = true
 	plog.Path = string(ctx.URI().RequestURI())
 	Hash := string(ctx.URI().Hash())
@@ -258,8 +268,6 @@ green  open test 		  o6VYCbWMTiW9jXIna8s-FA 5 1  0 0    1kb    1kb
 
 func index(ctx *fasthttp.RequestCtx) {
 	notFound(ctx)
-	//ctx.SendFile("E:\\tmpssd\\2024\\tcppc-go-fuzz-main\\tests\\httphandle\\server\\handler.go")
-
 }
 
 func notFound(ctx *fasthttp.RequestCtx) {

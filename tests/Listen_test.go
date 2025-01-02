@@ -10,12 +10,12 @@ func TestListen(t *testing.T) {
 	//ListenerManager
 	lm := ingress.ListenerManager{}
 	//TCPListener
-	tcpListener := ingress.NewTCPListener("0.0.0.0:8777")
+	tcpListener := ingress.NewTCPListener("0.0.0.0", 8777)
 	//NewListenerManager
 	lm = *ingress.NewListenerManager()
 	//AddTCPListener
 	lm.AddTCPListener(tcpListener)
-	tcpListener = ingress.NewTCPListener("0.0.0.0:6379")
+	tcpListener = ingress.NewTCPListener("0.0.0.0", 6379)
 	//NewListenerManager
 	lm = *ingress.NewListenerManager()
 	//AddTCPListener

@@ -91,10 +91,15 @@ func DefaultTCPHandler(conn *net.TCPConn) {
 }
 func DefaultUDPHandler(conn *net.UDPConn, src *net.UDPAddr, buf []byte) {
 	sess := session.NewSession(conn, src)
-	session.Distributor(conn, sess)
+	//session.Distributor(conn, sess)
+	//TODO UDP 服务端
+	if src != nil {
+		sess.SrcIP = src.IP.String()
+		sess.SrcPort = src.Port
+	}
 	sess.EndTime = time.Now()
 	sess.Duration = int(sess.EndTime.Sub(sess.StartTime).Milliseconds())
-	sess.Data = strings.Trim(utils.EscapeBytes(sess.GetOutBuffer().Bytes()), `"`)
+	sess.Data = utils.EscapeBytes(sess.GetOutBuffer().Bytes())
 	sess.GetOutBuffer().Reset()
 	config.Logger.Log(sess)
 	sess.Close()

@@ -1,0 +1,34 @@
+# 服务监听地址
+host = "127.0.0.1"
+# 服务监听端口 iptables 需要把端口流量转发到此端口
+port = 80
+# 系统日志路径 默认为stderr
+#logPath = "/var/log/system.log"
+# 蜜罐会话日志路径 默认为stdout
+#honeyLogPath = "/var/log/honey.log"
+# 超时时间
+timeOut = 60
+
+# TLS 配置
+[tls]
+certKey = "private.key"
+certFile = "certificate.crt"
+
+# 消息队列配置
+[mq]
+host = "mq.example.com"
+port = 4150
+user = "mq_user"
+password = "mq_password"
+topic = "mq_topic"
+
+# 转发规则 0 为转发所有端口
+[[forward]]
+port = 80
+handler = "relay_http"
+config = { service = "baidu", targetHost = "www.baidu.com:443", isTls = "true" }
+
+#[[forward]]
+#port = 33306
+#handler = "relay_tcp"
+#config = { service = "mysql", targetAddr = "127.0.0.1:3306", sendSession = "false" }

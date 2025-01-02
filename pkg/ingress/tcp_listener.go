@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 	"net"
-	"strconv"
 	"sync"
 )
 
@@ -17,15 +16,7 @@ type TCPListener struct {
 }
 
 // NewTCPListener creates a new TCPListener instance.
-func NewTCPListener(address string) *TCPListener {
-	host, portStr, err := net.SplitHostPort(address)
-	if err != nil {
-		log.Fatalf("Failed to split TCP listener address: %s\n", err)
-	}
-	port, err := strconv.Atoi(portStr)
-	if err != nil {
-		log.Fatalf("Failed to parse TCP listener port: %s\n", err)
-	}
+func NewTCPListener(host string, port int) *TCPListener {
 	return &TCPListener{
 		Host: host,
 		Port: port,

@@ -19,16 +19,13 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-type Session struct {
+type SSHSession struct {
+	types.Session
 	ID            string    `gorm:"primaryKey" json:"id"`
 	SessionID     string    `gorm:"index" json:"session_id"`
 	StartTime     time.Time `gorm:"index" json:"start_time"`
 	EndTime       time.Time `gorm:"index" json:"end_time"`
 	Duration      int       `json:"duration"`
-	SrcIP         string    `gorm:"index" json:"src_ip"`
-	SrcPort       int       `gorm:"index" json:"src_port"`
-	DstIP         string    `gorm:"index" json:"dst_ip"`
-	DstPort       int       `gorm:"index" json:"dst_port"`
 	ClientVersion string    `json:"client_version"`
 	Shell         string    `json:"shell"`
 	Request       string    `json:"request"`
@@ -49,7 +46,8 @@ var (
 )
 
 func HandleSsh(conn net.Conn, session *types.Session) {
-	var s Session
+	var s SSHSession
+	s.Session = *session
 	serverConfig := &ssh.ServerConfig{
 		MaxAuthTries:      6,
 		PasswordCallback:  s.PasswordCallback,
@@ -59,10 +57,6 @@ func HandleSsh(conn net.Conn, session *types.Session) {
 	s.ID = uuid.New().String()
 	s.Service = "ssh"
 	s.SessionID = session.ID
-	s.SrcIP = session.SrcIP
-	s.SrcPort = session.SrcPort
-	s.DstIP = session.DstIP
-	s.DstPort = session.DstPort
 	s.StartTime = time.Now()
 	signer, _ := ssh.NewSignerFromSigner(config.SshPrivateKey)
 	serverConfig.AddHostKey(signer)
@@ -74,10 +68,10 @@ func HandleSsh(conn net.Conn, session *types.Session) {
 }
 
 // TableName 设置表名
-func (s *Session) TableName() string {
+func (s *SSHSession) TableName() string {
 	return "ssh_logs"
 }
-func (s *Session) ToMap() (map[string]interface{}, error) {
+func (s *SSHSession) ToMap() (map[string]interface{}, error) {
 	data, err := json.Marshal(s)
 	if err != nil {
 		return nil, err
@@ -87,7 +81,7 @@ func (s *Session) ToMap() (map[string]interface{}, error) {
 	return result, err
 }
 
-func (s *Session) PublicKeyCallback(conn ssh.ConnMetadata, key ssh.PublicKey) (*ssh.Permissions, error) {
+func (s *SSHSession) PublicKeyCallback(conn ssh.ConnMetadata, key ssh.PublicKey) (*ssh.Permissions, error) {
 	s.User = conn.User()
 	s.PublicKey = strings.Trim(strconv.Quote(string(key.Marshal())), `"`)
 
@@ -95,14 +89,14 @@ func (s *Session) PublicKeyCallback(conn ssh.ConnMetadata, key ssh.PublicKey) (*
 	return nil, nil
 }
 
-func (s *Session) PasswordCallback(conn ssh.ConnMetadata, password []byte) (*ssh.Permissions, error) {
+func (s *SSHSession) PasswordCallback(conn ssh.ConnMetadata, password []byte) (*ssh.Permissions, error) {
 	s.User = conn.User()
 	s.PassWord = strings.Trim(strconv.Quote(string(password)), `"`)
 	//time.Sleep(100 * time.Millisecond)
 	return nil, nil
 }
 
-func (s *Session) HandleConn(conn net.Conn, serverConfig *ssh.ServerConfig) {
+func (s *SSHSession) HandleConn(conn net.Conn, serverConfig *ssh.ServerConfig) {
 	defer conn.Close()
 	s.Service = "ssh"
 	//(conn.RemoteAddr())
@@ -163,7 +157,7 @@ func (cl *ConnLogger) Write(b []byte) (int, error) {
 func NewConnLogger(conn io.ReadWriter, in *bytes.Buffer, out *bytes.Buffer) *ConnLogger {
 	return &ConnLogger{ReadWriter: conn, in: in, out: out}
 }
-func (s *Session) handleChannel(newChannel ssh.NewChannel) {
+func (s *SSHSession) handleChannel(newChannel ssh.NewChannel) {
 	if t := newChannel.ChannelType(); t != "session" {
 		newChannel.Reject(ssh.UnknownChannelType, fmt.Sprintf("unknown channel type: %s", t))
 		return
