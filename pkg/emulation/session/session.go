@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func NewSession(conn interface{}, addr interface{}) *types.Session {
+func NewSession(conn interface{}, src interface{}) *types.Session {
 	s := &types.Session{}
 	s.SetConnection(conn)
 	s.ID = uuid.New().String()
@@ -24,16 +24,14 @@ func NewSession(conn interface{}, addr interface{}) *types.Session {
 	} else if _, ok := conn.(*net.UDPConn); ok {
 		s.Protocol = "UDP"
 		var port string
-		s.SrcIP, port, _ = net.SplitHostPort(conn.(*net.UDPConn).RemoteAddr().String())
-		s.SrcPort, _ = strconv.Atoi(port)
 		s.DstIP, port, _ = net.SplitHostPort(conn.(*net.UDPConn).LocalAddr().String())
 		s.DstPort, _ = strconv.Atoi(port)
-		if addr != nil {
-			s.DstIP, port, _ = net.SplitHostPort(addr.(*net.UDPAddr).String())
-			s.DstPort, _ = strconv.Atoi(port)
+		if src != nil {
+			s.SrcIP, port, _ = net.SplitHostPort(src.(*net.UDPAddr).String())
+			s.SrcPort, _ = strconv.Atoi(port)
 		}
 	}
-	s.SetAddr(addr)
+
 	s.StartTime = time.Now()
 	return s
 }

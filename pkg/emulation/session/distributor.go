@@ -50,7 +50,7 @@ func PortDistributor(conn net.Conn, session *types.Session) bool {
 			conn, //由于之前已经读取了一部分数据 需要覆盖 reader 还原buffer
 			session.GetOutBuffer(),
 		)
-		relay.HandleRelay(conn2, session, map[string]string{"targetAddr": "127.0.0.1:4524", "sendSession": "false"})
+		relay.HandleTCPRelay(conn2, session, map[string]string{"targetAddr": "127.0.0.1:4524", "sendSession": "false"})
 		return true
 	case 6379:
 		conn2 := utils.NewLoggedConn(
@@ -87,7 +87,7 @@ func MagicDistributor(conn net.Conn, session *types.Session) bool {
 				} else {
 					session.Service = rule.Config["service"]
 				}
-				relay.HandleRelay(conn2, session, rule.Config)
+				relay.HandleTCPRelay(conn2, session, rule.Config)
 				return true
 			}
 		}
@@ -132,7 +132,7 @@ func MagicDistributor(conn net.Conn, session *types.Session) bool {
 		session.Service = "http"
 		session.IsHandled = true
 		session.IsHttp = true
-		http.HandleHttp(conn, session)
+		http.HandleHttp(conn2, session)
 		return true
 	}
 	/* SSH */

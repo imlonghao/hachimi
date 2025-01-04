@@ -99,10 +99,8 @@ func DefaultUDPHandler(conn *net.UDPConn, src *net.UDPAddr, buf []byte) {
 	}
 	sess.EndTime = time.Now()
 	sess.Duration = int(sess.EndTime.Sub(sess.StartTime).Milliseconds())
-	sess.Data = utils.EscapeBytes(sess.GetOutBuffer().Bytes())
-	sess.GetOutBuffer().Reset()
+	sess.Data = utils.EscapeBytes(buf)
 	config.Logger.Log(sess)
-	sess.Close()
 
 }
 

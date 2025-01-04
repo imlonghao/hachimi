@@ -11,6 +11,7 @@ import (
 	"hachimi/pkg/config"
 	"hachimi/pkg/types"
 	"io"
+	"log"
 	"net"
 	"strconv"
 	"strings"
@@ -148,7 +149,7 @@ func (cl *ConnLogger) Write(b []byte) (int, error) {
 		_, err := cl.out.Write(b[:n])
 		if err != nil {
 
-			fmt.Println(err)
+			log.Println(err)
 		}
 
 	}
@@ -192,7 +193,7 @@ func (s *SSHSession) handleChannel(newChannel ssh.NewChannel) {
 						reader := bufio.NewReader(channelLogger)
 						_, err := reader.ReadString('\n')
 						if err != nil {
-							fmt.Println("Error reading:", err)
+							log.Println("Error reading:", err)
 							break
 						}
 						channel.Write([]byte("\x00"))

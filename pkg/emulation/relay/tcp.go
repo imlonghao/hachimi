@@ -8,7 +8,7 @@ import (
 	"net"
 )
 
-func HandleRelay(src net.Conn, session *types.Session, config map[string]string) bool {
+func HandleTCPRelay(src net.Conn, session *types.Session, config map[string]string) bool {
 	targetAddr := config["targetAddr"]  //目标地址
 	sendSesion := config["sendSession"] //是否发送session
 	dst, err := net.Dial("tcp", targetAddr)

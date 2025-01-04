@@ -101,7 +101,14 @@ func LoadConfig(filePath string) error {
 			}
 		}
 	} else {
-		//TODO 使用NSQ 作为日志处理器
+		producer, err := NewNsqProducer(config.MQ.Host, config.MQ.AuthSecret, config.MQ.Compression, config.MQ.CompressionLevel, config.MQ.Tls, config.MQ.EnableTlsVerify, config.MQ.ClientCertPath, config.MQ.ClientKeyPath, config.MQ.CaCertPath)
+		if err != nil {
+			return err
+		}
+		Logger, err = logger.NewNSQLogger(producer, config.MQ.Topic, 100)
+		if err != nil {
+			return err
+		}
 	}
 	if config.TLS != nil {
 		if config.TLS.CertFile != "" && config.TLS.CertKey != "" {

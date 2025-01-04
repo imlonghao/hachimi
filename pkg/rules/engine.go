@@ -1,7 +1,6 @@
 package rules
 
 import (
-	"fmt"
 	"github.com/expr-lang/expr"
 	"github.com/fsnotify/fsnotify"
 	"github.com/pelletier/go-toml"
@@ -33,7 +32,7 @@ func EvaluateRule(rule *Rule, data map[string]interface{}) (*[]string, error) {
 func loadRulesFromFolder(folderPath string) {
 	filepath.Walk(folderPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			fmt.Println("Error walking through the folder:", err)
+			log.Println("Error walking through the folder:", err)
 			return nil
 		}
 		if info.IsDir() {
@@ -44,7 +43,7 @@ func loadRulesFromFolder(folderPath string) {
 			// 解析Toml文件
 			rulesFromFile, err := parseTomlFile(path)
 			if err != nil {
-				fmt.Println("Error parsing Toml file:", err)
+				log.Println("Error parsing Toml file:", err)
 			} else {
 				// 合并规则到数组
 				updateRules(rulesFromFile)
@@ -115,7 +114,7 @@ func updateRules(newRules []Rule) {
 func watchConfigFolder(folderPath string) {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
-		fmt.Println("Error creating watcher:", err)
+		log.Println("Error creating watcher:", err)
 		return
 	}
 	defer watcher.Close()
@@ -131,7 +130,7 @@ func watchConfigFolder(folderPath string) {
 		return nil
 	})
 	if err != nil {
-		fmt.Println("Error adding folder to watcher:", err)
+		log.Println("Error adding folder to watcher:", err)
 		return
 	}
 
@@ -145,7 +144,7 @@ func watchConfigFolder(folderPath string) {
 				// 文件写入或创建事件，重新加载规则
 				rulesFromFile, err := parseTomlFile(event.Name)
 				if err != nil {
-					fmt.Println("Error parsing Toml file:", err)
+					log.Println("Error parsing Toml file:", err)
 				} else {
 					// 合并规则到数组
 					updateRules(rulesFromFile)
@@ -155,7 +154,7 @@ func watchConfigFolder(folderPath string) {
 			if !ok {
 				return
 			}
-			fmt.Println("Error in file watcher:", err)
+			log.Println("Error in file watcher:", err)
 		}
 	}
 }

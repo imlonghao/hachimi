@@ -16,17 +16,17 @@ certFile = "certificate.crt"
 
 # 消息队列配置
 [mq]
-host = "mq.example.com"
-port = 4150
-user = "mq_user"
-password = "mq_password"
-topic = "mq_topic"
+host = "127.0.0.1:1337"
+secret = ""
+topic = "hachimi"
+compression = false
+compressionLevel = 6
 
 # 转发规则 0 为转发所有端口
-[[forward]]
-port = 80
-handler = "relay_http"
-config = { service = "baidu", targetHost = "www.baidu.com:443", isTls = "true" }
+#[[forward]]
+#port = 80
+#handler = "relay_http"
+#config = { service = "baidu", targetHost = "www.baidu.com:443", isTls = "true" }
 
 #[[forward]]
 #port = 33306

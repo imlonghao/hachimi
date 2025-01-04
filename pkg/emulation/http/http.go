@@ -1,7 +1,6 @@
 package http
 
 import (
-	"fmt"
 	"github.com/fsnotify/fsnotify"
 	"github.com/google/uuid"
 	"github.com/traefik/yaegi/interp"
@@ -115,19 +114,19 @@ func loadScript(fileName string) {
 	// 从文件中读取脚本内容
 	scriptContent, err := os.ReadFile(fileName)
 	if err != nil {
-		fmt.Println("Error reading script file:", err)
+		log.Println("Error reading script file:", err)
 		return
 	}
 	_, err = i.Eval(string(scriptContent))
 	if err != nil {
-		fmt.Println("Error evaluating script:", err)
+		log.Println("Error evaluating script:", err)
 		return
 	}
 
 	// 获取 requestHandler 函数
 	requestHandlerValue, err := i.Eval("plugin.RequestHandler")
 	if err != nil {
-		fmt.Println("Error getting requestHandler:", err)
+		log.Println("Error getting requestHandler:", err)
 		return
 	}
 
@@ -135,11 +134,11 @@ func loadScript(fileName string) {
 	ok := false
 	lrequestHandlerFunc, ok := requestHandlerValue.Interface().(func(*types.Http, *fasthttp.RequestCtx))
 	if !ok {
-		fmt.Println("Cannot convert value to function")
+		log.Println("Cannot convert value to function")
 		return
 	}
 
 	// 更新 requestHandlerFunc
 	RequestHandlerFunc = lrequestHandlerFunc
-	fmt.Println("Script reloaded successfully")
+	log.Println("Script reloaded successfully")
 }

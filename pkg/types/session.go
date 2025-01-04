@@ -10,7 +10,6 @@ type Session struct {
 	ID         string `json:"id"`
 	Protocol   string `json:"protocol"`
 	connection interface{}
-	addr       interface{}
 	StartTime  time.Time `json:"start_time"`
 	EndTime    time.Time `json:"end_time"`
 	SrcIP      string    `json:"src_ip"`
@@ -37,9 +36,7 @@ func (s *Session) SetConnection(conn interface{}) {
 	s.connection = conn
 
 }
-func (s *Session) SetAddr(addr interface{}) {
-	s.addr = addr
-}
+
 func (s *Session) SetInBuffer(buffer *bytes.Buffer) {
 	s.inBuffer = buffer
 }

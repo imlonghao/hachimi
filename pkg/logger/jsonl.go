@@ -12,7 +12,7 @@ type JSONLLogger struct {
 	writer  *os.File
 	wg      sync.WaitGroup
 	buffer  []Loggable
-	maxSize int
+	bufSize int
 	mu      sync.Mutex
 }
 
@@ -36,7 +36,7 @@ func NewJSONLLogger(output string, bufSize int) (*JSONLLogger, error) {
 	logger := &JSONLLogger{
 		logChan: make(chan Loggable, 100),
 		writer:  file,
-		maxSize: bufSize,
+		bufSize: bufSize,
 		buffer:  make([]Loggable, 0, bufSize),
 	}
 	logger.wg.Add(1)
@@ -64,7 +64,7 @@ func (j *JSONLLogger) processLogs() {
 			j.mu.Lock()
 			j.buffer = append(j.buffer, log)
 			// 如果缓冲区已满，触发写入
-			if len(j.buffer) >= j.maxSize {
+			if len(j.buffer) >= j.bufSize {
 				j.flush()
 			}
 			j.mu.Unlock()

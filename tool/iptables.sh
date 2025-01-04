@@ -47,7 +47,3 @@ sudo systemctl enable iptables
 sudo service ip6tables save
 sudo systemctl start ip6tables
 sudo systemctl enable ip6tables
-
-openssl genpkey -algorithm RSA -out private.key
-openssl req -new -key private.key -out certificate.csr  -subj "/C=CN/ST=BeiJing/L=test/O=test/OU=test/CN=test"
-openssl x509 -req -days 365 -in certificate.csr -signkey private.key -out certificate.crt

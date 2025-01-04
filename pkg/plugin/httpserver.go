@@ -145,24 +145,14 @@ func portHandler(plog *types.Http, ctx *fasthttp.RequestCtx) bool {
 		return true
 	case 2375: //docker api
 		plog.Service = "docker-api"
-		switch string(ctx.Path()) {
-		case "/":
-			ctx.Response.SetStatusCode(404)
-			ctx.Response.Header.Set("Content-Type", "application/json")
-			ctx.WriteString(`{"message":"page not found"}
-`) //有一个换行符
-			return true
-		default:
-			if strings.HasSuffix(string(ctx.Path()), "/version") {
-				dockerVersion(ctx)
-				return true
-			}
-			ctx.Response.SetStatusCode(404)
-			ctx.WriteString(`{"message":"page not found"}
-`) //有一个换行符
+
+		if strings.HasSuffix(string(ctx.Path()), "/version") {
+			dockerVersion(ctx)
 			return true
 		}
-
+		ctx.Response.SetStatusCode(404)
+		ctx.WriteString("{\"message\":\"page not found\"}\n") //有一个换行符
+		return true
 	default:
 		isHandle = false
 	}
@@ -722,4 +712,29 @@ func tomcatManger(ctx *fasthttp.RequestCtx) {
 	return
 }
 
-const data2 = `test`
+const data2 = `<!DOCTYPE html>
+<html>
+<head>
+<title>#{title}</title>
+<style>
+    body {
+        width: 35em;
+        margin: 0 auto;
+        font-family: Tahoma, Verdana, Arial, sans-serif;
+    }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+`

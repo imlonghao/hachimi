@@ -20,6 +20,7 @@ var (
 	keyPath      = flag.String("keyPath", "", "ssl key path")
 	certPath     = flag.String("certPath", "", "ssl cert path")
 	timeOut      = flag.Int("timeOut", 60, "timeout for honeypot session Default 60")
+	beekeeper    = flag.String("beekeeper", "", "beekeeper address")
 )
 
 func main() {
