@@ -10,7 +10,7 @@ import (
 	"hachimi/pkg/plugin"
 	"hachimi/pkg/plugin/symbols"
 	"hachimi/pkg/types"
-	"io"
+	"hachimi/pkg/utils"
 	"log"
 	"net"
 
@@ -38,7 +38,7 @@ func HandleHttp(conn net.Conn, session *types.Session) {
 	httpLog.Duration = int(httpLog.EndTime.Sub(httpLog.StartTime).Milliseconds())
 	if err != nil {
 		httpLog.IsHandled = false
-		io.ReadAll(conn) //出错继续读取
+		utils.ReadAll(conn, 1024)
 	}
 	config.Logger.Log(httpLog)
 }

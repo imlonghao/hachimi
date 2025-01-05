@@ -2,10 +2,11 @@ package types
 
 import (
 	"bytes"
-	"encoding/json"
+	"net"
 	"time"
 )
 
+// TODO JA3
 type Session struct {
 	ID         string `json:"id"`
 	Protocol   string `json:"protocol"`
@@ -23,15 +24,11 @@ type Session struct {
 	Data       string    `json:"data"`
 	Service    string    `json:"service"`
 	//经过的时间 ms
-	Duration  int
+	Duration  int `json:"duration"`
 	inBuffer  *bytes.Buffer
 	outBuffer *bytes.Buffer
 }
 
-// TableName 设置表名
-func (s *Session) TableName() string {
-	return "sessions"
-}
 func (s *Session) SetConnection(conn interface{}) {
 	s.connection = conn
 
@@ -46,20 +43,16 @@ func (s *Session) SetOutBuffer(buffer *bytes.Buffer) {
 func (s *Session) GetOutBuffer() *bytes.Buffer {
 	return s.outBuffer
 }
+
+// Close 关闭原始连接
 func (s *Session) Close() {
 	if s.connection != nil {
-		if conn, ok := s.connection.(interface{ Close() error }); ok {
+		//只关闭TCP  UDP不需要关闭 UDP是无状态的 关闭就会停止监听
+		if conn, ok := s.connection.(*net.TCPConn); ok {
 			conn.Close()
 		}
 	}
 }
-
-func (s *Session) ToMap() (map[string]interface{}, error) {
-	data, err := json.Marshal(s)
-	if err != nil {
-		return nil, err
-	}
-	var result map[string]interface{}
-	err = json.Unmarshal(data, &result)
-	return result, err
+func (s Session) Type() string {
+	return "session"
 }

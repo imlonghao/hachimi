@@ -3,6 +3,7 @@ package logger
 import (
 	"encoding/json"
 	"github.com/nsqio/go-nsq"
+	"hachimi/pkg/types"
 	"log"
 	"sync"
 	"time"
@@ -16,16 +17,18 @@ type NSQLogger struct {
 	buffer   []Loggable
 	bufSize  int
 	mu       sync.Mutex
+	nodeName string
 }
 
 // NewNSQLogger 创建 NSQLogger
-func NewNSQLogger(producer *nsq.Producer, topic string, bufSize int) (*NSQLogger, error) {
+func NewNSQLogger(producer *nsq.Producer, topic string, bufSize int, nodeName string) (*NSQLogger, error) {
 	logger := &NSQLogger{
 		logChan:  make(chan Loggable, 100),
 		producer: producer,
 		topic:    topic,
 		bufSize:  bufSize,
 		buffer:   make([]Loggable, 0, bufSize),
+		nodeName: nodeName,
 	}
 	logger.wg.Add(1)
 	go logger.processLogs()
@@ -74,14 +77,13 @@ func (o *NSQLogger) flush() {
 	}
 	var buf [][]byte
 	for _, logData := range o.buffer {
-		dataMap, _ := logData.ToMap()
-		dataMap["table_name"] = logData.TableName()
-		jsonData, _ := json.Marshal(dataMap)
+		jsonData, _ := json.Marshal(types.HoneyData{Type: logData.Type(), Data: logData, Time: time.Now().Unix(), NodeName: o.nodeName})
 		buf = append(buf, jsonData)
 	}
 	o.buffer = o.buffer[:0]
 	err := o.producer.MultiPublish(o.topic, buf)
 	//高延迟时 消息队列可能阻塞 开一个新线程避免阻塞请求 一直失败可能会爆内存?
+	//发送失败 nsq客户端会一直存放在内存中 等待重试
 	if err != nil {
 		log.Println(err)
 	}

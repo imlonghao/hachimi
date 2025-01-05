@@ -210,3 +210,33 @@ nsq_tail -nsqd-tcp-address  127.0.0.1:1337 --topic hachimi -producer-opt=auth_se
 访问蜜罐 蜜罐节点会将访问信息发送到消息队列中 nsq_tail 消费者会将消息逐行打印到控制台
 
 正常情况下可以看到终端打印出json 格式的访问日志字符串
+
+# 数据库部署
+参考[clickhouse 官方文档](https://clickhouse.com/docs/zh/getting-started/install/)
+
+# 分析节点部署
+下载 GeoLite2 数据库 [GeoLite2 数据库](https://dev.maxmind.com/geoip/geoip2/geolite2/)
+
+hunter 配置文件
+```yaml
+# 数据库配置
+db_host = "10.0.0.1:9000"
+db_name = "default"
+db_user = "default"
+db_password = "123456"
+geo_country = "./GeoLite2-Country.mmdb"
+geo_asn = "./GeoLite2-ASN.mmdb"
+# 消息队列配置
+[mq]
+host = "127.0.0.1:1337"
+secret = ""
+topic = "hachimi"
+compression = false
+compressionLevel = 6
+```
+启动 hunter
+```bash
+./hunter -c config.yaml
+```
+从消息队列拉取的数据会保存到数据库中
+

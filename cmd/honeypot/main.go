@@ -43,18 +43,18 @@ func main() {
 		config.TlsConfig.Certificates = []tls.Certificate{cert}
 	}
 	if *timeOut != 60 {
-		config.GetConfig().TimeOut = *timeOut
+		config.GetPotConfig().TimeOut = *timeOut
 	}
-	if config.GetConfig().Host == "" {
-		config.GetConfig().Host = *host
+	if config.GetPotConfig().Host == "" {
+		config.GetPotConfig().Host = *host
 	}
-	if config.GetConfig().Port == 0 {
-		config.GetConfig().Port = *port
+	if config.GetPotConfig().Port == 0 {
+		config.GetPotConfig().Port = *port
 	}
-	if config.GetConfig().LogPath == "" {
-		config.GetConfig().LogPath = *logPath
-		if config.GetConfig().LogPath != "stdout" {
-			logFile, err := os.OpenFile(config.GetConfig().LogPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if config.GetPotConfig().LogPath == "" {
+		config.GetPotConfig().LogPath = *logPath
+		if config.GetPotConfig().LogPath != "stdout" {
+			logFile, err := os.OpenFile(config.GetPotConfig().LogPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 			if err != nil {
 				log.Fatalf("Failed to open log file: %s\n", err)
 			}
@@ -62,11 +62,11 @@ func main() {
 			log.SetOutput(logFile)
 		}
 	}
-	if config.GetConfig().HoneyLogPath == "" {
+	if config.GetPotConfig().HoneyLogPath == "" {
 		//TODO MQ
-		config.GetConfig().HoneyLogPath = *honeyLogPath
-		if config.GetConfig().HoneyLogPath != "stdout" {
-			err := config.SetLogger(config.GetConfig().HoneyLogPath)
+		config.GetPotConfig().HoneyLogPath = *honeyLogPath
+		if config.GetPotConfig().HoneyLogPath != "stdout" {
+			err := config.SetLogger(config.GetPotConfig().HoneyLogPath)
 			if err != nil {
 				log.Fatalf("Failed to set honey log file: %s\n", err)
 			}
@@ -74,10 +74,10 @@ func main() {
 	}
 
 	lm := ingress.ListenerManager{}
-	tcpListener := ingress.NewTCPListener(config.GetConfig().Host, config.GetConfig().Port)
+	tcpListener := ingress.NewTCPListener(config.GetPotConfig().Host, config.GetPotConfig().Port)
 	lm = *ingress.NewListenerManager()
 	lm.AddTCPListener(tcpListener)
-	udpListener := ingress.NewUDPListener(config.GetConfig().Host, config.GetConfig().Port)
+	udpListener := ingress.NewUDPListener(config.GetPotConfig().Host, config.GetPotConfig().Port)
 	lm.AddUDPListener(udpListener)
 	lm.StartAll(context.Background())
 	select {}

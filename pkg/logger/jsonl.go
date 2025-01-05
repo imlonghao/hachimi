@@ -2,22 +2,24 @@ package logger
 
 import (
 	"encoding/json"
+	"hachimi/pkg/types"
 	"os"
 	"sync"
 	"time"
 )
 
 type JSONLLogger struct {
-	logChan chan Loggable
-	writer  *os.File
-	wg      sync.WaitGroup
-	buffer  []Loggable
-	bufSize int
-	mu      sync.Mutex
+	logChan  chan Loggable
+	writer   *os.File
+	wg       sync.WaitGroup
+	buffer   []Loggable
+	maxSize  int
+	mu       sync.Mutex
+	nodeName string
 }
 
 // NewJSONLLogger 创建 JSONLLogger
-func NewJSONLLogger(output string, bufSize int) (*JSONLLogger, error) {
+func NewJSONLLogger(output string, bufferSize int, nodeName string) (*JSONLLogger, error) {
 	var file *os.File
 	var err error
 
@@ -34,10 +36,11 @@ func NewJSONLLogger(output string, bufSize int) (*JSONLLogger, error) {
 	}
 
 	logger := &JSONLLogger{
-		logChan: make(chan Loggable, 100),
-		writer:  file,
-		bufSize: bufSize,
-		buffer:  make([]Loggable, 0, bufSize),
+		logChan:  make(chan Loggable, 100),
+		writer:   file,
+		maxSize:  bufferSize,
+		buffer:   make([]Loggable, 0, bufferSize),
+		nodeName: nodeName,
 	}
 	logger.wg.Add(1)
 	go logger.processLogs()
@@ -64,7 +67,7 @@ func (j *JSONLLogger) processLogs() {
 			j.mu.Lock()
 			j.buffer = append(j.buffer, log)
 			// 如果缓冲区已满，触发写入
-			if len(j.buffer) >= j.bufSize {
+			if len(j.buffer) >= j.maxSize {
 				j.flush()
 			}
 			j.mu.Unlock()
@@ -79,9 +82,7 @@ func (j *JSONLLogger) processLogs() {
 
 func (j *JSONLLogger) flush() {
 	for _, log := range j.buffer {
-		dataMap, _ := log.ToMap()
-		dataMap["table_name"] = log.TableName()
-		jsonData, _ := json.Marshal(dataMap)
+		jsonData, _ := json.Marshal(types.HoneyData{Type: log.Type(), Data: log, Time: time.Now().Unix(), NodeName: j.nodeName})
 		j.writer.Write(append(jsonData, '\n'))
 	}
 	j.buffer = j.buffer[:0]

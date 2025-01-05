@@ -3,6 +3,7 @@ package relay
 import (
 	"encoding/json"
 	"hachimi/pkg/types"
+	"hachimi/pkg/utils"
 	"io"
 	"log"
 	"net"
@@ -19,7 +20,7 @@ func HandleTCPRelay(src net.Conn, session *types.Session, config map[string]stri
 	defer dst.Close()
 	//连接 两个连接
 	if sendSesion == "true" {
-		sess, _ := session.ToMap()
+		sess, _ := utils.ToMap(session)
 		jsonData, _ := json.Marshal(sess)
 		dst.Write(jsonData)
 		dst.Write([]byte("\n"))

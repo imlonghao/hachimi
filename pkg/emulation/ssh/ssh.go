@@ -3,7 +3,6 @@ package ssh
 import (
 	"bufio"
 	"bytes"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
@@ -66,20 +65,6 @@ func HandleSsh(conn net.Conn, session *types.Session) {
 	s.Duration = int(s.EndTime.Sub(s.StartTime).Milliseconds())
 	config.Logger.Log(&s)
 
-}
-
-// TableName 设置表名
-func (s *SSHSession) TableName() string {
-	return "ssh_logs"
-}
-func (s *SSHSession) ToMap() (map[string]interface{}, error) {
-	data, err := json.Marshal(s)
-	if err != nil {
-		return nil, err
-	}
-	var result map[string]interface{}
-	err = json.Unmarshal(data, &result)
-	return result, err
 }
 
 func (s *SSHSession) PublicKeyCallback(conn ssh.ConnMetadata, key ssh.PublicKey) (*ssh.Permissions, error) {

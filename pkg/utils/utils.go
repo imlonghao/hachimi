@@ -1,19 +1,26 @@
 package utils
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
+	"errors"
 	"fmt"
 	"io"
 	"net"
+	"reflect"
 	"strings"
+	"time"
 )
 
 type NewConn struct {
 	net.Conn
-	Reader io.Reader
-	Writer io.Writer
+	Reader  io.Reader
+	Writer  io.Writer
+	Counter int64
+	limit   int64
 }
 
-func NewLoggedConn(conn net.Conn, reader io.Reader, logWriter io.Writer) *NewConn {
+func NewLoggedConn(conn net.Conn, reader io.Reader, logWriter io.Writer, limit int64) *NewConn {
 	if logWriter == nil {
 		logWriter = io.Discard // 默认丢弃所有日志
 	}
@@ -21,14 +28,23 @@ func NewLoggedConn(conn net.Conn, reader io.Reader, logWriter io.Writer) *NewCon
 		Conn:   conn,
 		Reader: io.TeeReader(reader, logWriter), // 记录读取流量
 		Writer: conn,
+		limit:  limit,
 	}
 }
 
 func (c *NewConn) Read(p []byte) (int, error) {
-	return c.Reader.Read(p)
+	// 全局读取限制
+	if c.limit != 0 && c.Counter >= c.limit {
+		//EOF
+		return 0, io.EOF
+	}
+	n, err := c.Reader.Read(p)
+	c.Counter += int64(n)
+	return n, err
 }
 
 func (c *NewConn) Close() error {
+	// 所有的连接关闭在最外层控制 防止被其他组件意外关闭
 	return nil
 }
 
@@ -147,4 +163,84 @@ func decodeHex(b byte) int {
 	default:
 		return -1
 	}
+}
+func Min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+// ReadAll 读取所有数据 直到达到限制 返回是否超出限制
+func ReadAll(conn net.Conn, limit int64) bool {
+	var buffer = make([]byte, 1024)
+	var total int64
+	for {
+		n, err := conn.Read(buffer)
+		if err != nil {
+			return false
+		}
+		total += int64(n)
+		if total >= limit {
+			return true
+		}
+	}
+}
+
+// ToMap 将结构体转为 map 不支持嵌套结构体
+func ToMap(obj interface{}) (map[string]interface{}, error) {
+	// 如果 obj 是 nil 或者不是结构体，直接返回错误
+	if obj == nil {
+		return nil, errors.New("input object is nil")
+	}
+	val := reflect.ValueOf(obj)
+	if val.Kind() == reflect.Ptr {
+		val = val.Elem() // 解引用指针
+	}
+	if val.Kind() != reflect.Struct {
+		return nil, errors.New("input is not a struct")
+	}
+	// 遍历结构体字段，将其转为 map
+	result := make(map[string]interface{})
+	typ := val.Type()
+	for i := 0; i < val.NumField(); i++ {
+		field := typ.Field(i)
+		if field.PkgPath != "" {
+			// 跳过未导出的字段
+			continue
+		}
+		result[field.Name] = val.Field(i).Interface()
+	}
+	return result, nil
+}
+
+// StringToTime time.Time字符串转为 time.Time
+func StringToTime(s string) (time.Time, error) {
+	dateTime, err := time.Parse(time.RFC3339Nano, s)
+	if err != nil {
+		dateTime, err = time.Parse(time.RFC3339, s)
+	}
+	return dateTime, err
+
+}
+
+// 	map[string]interface {} to  map[string]string
+
+func MapInterfaceToString(m map[string]interface{}) map[string]string {
+	result := make(map[string]string)
+	for k, v := range m {
+		if str, ok := v.(string); ok {
+			result[k] = str
+		}
+	}
+	return result
+}
+func SHA1(input string) string {
+
+	hasher := sha1.New()
+	hasher.Write([]byte(input))
+	hashSum := hasher.Sum(nil)
+
+	hashString := hex.EncodeToString(hashSum)
+	return hashString
 }

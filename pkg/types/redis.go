@@ -1,7 +1,6 @@
 package types
 
 import (
-	"encoding/json"
 	"time"
 )
 
@@ -20,16 +19,6 @@ type RedisSession struct {
 	PassWord  string    `json:"password"`
 }
 
-// TableName 设置表名
-func (s *RedisSession) TableName() string {
-	return "redis_logs"
-}
-func (s *RedisSession) ToMap() (map[string]interface{}, error) {
-	data, err := json.Marshal(s)
-	if err != nil {
-		return nil, err
-	}
-	var result map[string]interface{}
-	err = json.Unmarshal(data, &result)
-	return result, err
+func (r RedisSession) Type() string {
+	return "redis_session"
 }

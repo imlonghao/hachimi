@@ -51,7 +51,7 @@ func HandleHttpRelay(src net.Conn, session *types.Session, configMap map[string]
 	httpLog.UriParam = make(map[string]string)
 	httpLog.IsHandled = true
 	httpLog.Service = service
-	proxyServer, _ := proxy.NewReverseProxyWith(proxy.WithAddress(targetHost), proxy.WithTLSConfig(tlsConfig), proxy.WithTimeout(time.Duration(config.GetConfig().TimeOut)*time.Second))
+	proxyServer, _ := proxy.NewReverseProxyWith(proxy.WithAddress(targetHost), proxy.WithTLSConfig(tlsConfig), proxy.WithTimeout(time.Duration(config.GetPotConfig().TimeOut)*time.Second))
 	v := serverPool.Get()
 	if v == nil {
 		v = &fasthttp.Server{}

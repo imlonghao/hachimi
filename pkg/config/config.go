@@ -7,6 +7,7 @@ import (
 	"github.com/pelletier/go-toml"
 	"gorm.io/gorm"
 	"hachimi/pkg/logger"
+	"hachimi/pkg/mq"
 	"log"
 	"os"
 )
@@ -17,7 +18,7 @@ var (
 	TlsConfig *tls.Config
 )
 
-type Config struct {
+type PotConfig struct {
 	// Host 服务监听地址
 	Host string `toml:"host"`
 	// Port 服务监听端口
@@ -30,18 +31,36 @@ type Config struct {
 	LogPath string `toml:"logPath"`
 	// HoneyLogPath 蜜罐会话日志路径 默认为stdout 如果启用 mq 会话日志将会被发送到 nsq 中 不会写入文件
 	HoneyLogPath string `toml:"honeyLogPath"`
-	TimeOut      int    `toml:"timeOut"`
+	// TimeOut 会话超时时间 默认为 60s
+	TimeOut int `toml:"timeOut"`
+	// LimitSize 会话日志大小限制 默认为 1MB //HTTP限制
+	LimitSize int64 `toml:"limitSize"`
+	// NodeName 节点名称 默认使用主机名
+	NodeName string `toml:"nodeName"`
+	// IpMasking 是否启用IP脱敏 默认为false 会将数据中可能出现的公网节点IP 尽可能替换为10.0.0.1
+	IpMasking bool `toml:"ipMasking"` //TODO
+	// NodeIP 节点公网 IP 地址 用于脱敏
+	NodeIP string `toml:"nodeIP"`
+	// NodeIPV6 节点公网 IPV6 地址 用于脱敏
+	NodeIPV6 string `toml:"nodeIPV6"`
 	// MQ 消息队列配置
 	MQ *MQConfig `toml:"mq"`
 }
 
-var honeyConfig *Config
+var potConfig *PotConfig
 
-func GetConfig() *Config {
-	if honeyConfig == nil {
-		log.Fatalln("Config is not loaded")
+func GetPotConfig() *PotConfig {
+	if potConfig == nil {
+		log.Fatalln("PotConfig is not loaded")
 	}
-	return honeyConfig
+	return potConfig
+}
+
+func GetLimitSize() int64 {
+	if potConfig == nil || potConfig.LimitSize == 0 {
+		return 1024 * 1024 * 5 // 5MB
+	}
+	return potConfig.LimitSize
 }
 
 // Logger 全局会话日志处理器
@@ -50,7 +69,7 @@ var Logger logger.Logger
 var SshPrivateKey *rsa.PrivateKey
 
 func init() {
-	honeyConfig = &Config{
+	potConfig = &PotConfig{
 		TimeOut: 60,
 	}
 	TlsConfig = &tls.Config{
@@ -62,7 +81,7 @@ func init() {
 	}
 	var err error
 	SshPrivateKey, err = rsa.GenerateKey(rand.Reader, 2048)
-	jsonlLogger, err := logger.NewJSONLLogger("stdout", 100)
+	jsonlLogger, err := logger.NewJSONLLogger("stdout", 100, GetNodeName())
 	if err != nil {
 		log.Fatalln("Failed to create JSONL logger:", err)
 	}
@@ -76,7 +95,7 @@ func LoadConfig(filePath string) error {
 	}
 	defer file.Close()
 
-	var config Config
+	var config PotConfig
 	decoder := toml.NewDecoder(file)
 	err = decoder.Decode(&config)
 	if err != nil {
@@ -101,11 +120,11 @@ func LoadConfig(filePath string) error {
 			}
 		}
 	} else {
-		producer, err := NewNsqProducer(config.MQ.Host, config.MQ.AuthSecret, config.MQ.Compression, config.MQ.CompressionLevel, config.MQ.Tls, config.MQ.EnableTlsVerify, config.MQ.ClientCertPath, config.MQ.ClientKeyPath, config.MQ.CaCertPath)
+		producer, err := mq.NewNsqProducer(config.MQ.Host, config.MQ.AuthSecret, config.MQ.Compression, config.MQ.CompressionLevel, config.MQ.Tls, config.MQ.EnableTlsVerify, config.MQ.ClientCertPath, config.MQ.ClientKeyPath, config.MQ.CaCertPath)
 		if err != nil {
 			return err
 		}
-		Logger, err = logger.NewNSQLogger(producer, config.MQ.Topic, 100)
+		Logger, err = logger.NewNSQLogger(producer, config.MQ.Topic, 10, GetNodeName())
 		if err != nil {
 			return err
 		}
@@ -130,22 +149,39 @@ func LoadConfig(filePath string) error {
 			return err
 		}
 	}
-	honeyConfig = &config
+	potConfig = &config
 	return nil
 }
 func SetLogger(path string) error {
-	honeyLogger, err := logger.NewJSONLLogger(path, 100)
+	honeyLogger, err := logger.NewJSONLLogger(path, 100, GetNodeName())
 	if err != nil {
 		return err
 	}
 	Logger = honeyLogger
 	return nil
 }
-func LoadConfigFromString(data string) (*Config, error) {
-	var config Config
+func LoadConfigFromString(data string) (*PotConfig, error) {
+	var config PotConfig
 	err := toml.Unmarshal([]byte(data), &config)
 	if err != nil {
 		return nil, err
 	}
 	return &config, nil
+}
+func GetNodeName() string {
+	if potConfig.NodeName == "" {
+		hostname, err := os.Hostname()
+		if err != nil {
+			return "unknown"
+		}
+		potConfig.NodeName = hostname
+		return hostname
+	}
+	return potConfig.NodeName
+}
+func GetNodeIP() string {
+	if potConfig.NodeIP == "" {
+		return ""
+	}
+	return potConfig.NodeIP
 }

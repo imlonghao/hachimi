@@ -17,7 +17,7 @@ import (
 )
 
 func HandleRedis(conn net.Conn, session *types.Session) bool {
-	c := newConn(conn, config.GetConfig().TimeOut)
+	c := newConn(conn, config.GetPotConfig().TimeOut)
 	list := map[string]bool{"acl": true,
 		"append":               true,
 		"asking":               true,
