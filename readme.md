@@ -165,17 +165,18 @@ type Http struct {
 - [x] 协议解析
 - [x] 响应模拟
 - [ ] 插件系统
-- [ ] 日志记录
+- [x] 日志记录
 #### 协议自动识别
 -  根据首包开头前10字节 判断是否是 SSH 客户端版本信息  `SSH-2.0-`
 #### 协议解析
 -  使用go标准库`golang.org/x/crypto/ssh`接管传入的连接，解析SSH握手包，
 #### 响应模拟
--  接管后的SSH连接会发送到下游其他协议识别模块进行处理, 可以在这里实现SSH协议的交互和非交互的shell处理
+-  实现了SSH协议的简单的交互和非交互的shell处理
 -  实现SSH中继与录像 用于真实环境模拟 `TODO`
 #### 日志记录
 -   SSH会话记录包含了SSH会话的详细信息，包括SSH客户端版本，非交互shell命令，`SSH channel`原始数据，SSH认证公钥，是否交互，认证用户密码等信息
 -   日志中记录了完整的SHELL会话 包含了非交互和交互的shell命令与会话数据
+
 ```go
 type SSHSession struct {
 	types.Session
