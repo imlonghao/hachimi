@@ -158,10 +158,16 @@ func MagicDistributor(conn net.Conn, session *types.Session) bool {
 	}
 
 	//读取第一行 限制大小1K
-	firstLine := strings.Split(string(session.GetOutBuffer().Bytes()[0:utils.Min(n, 1024)]), "\n")[0]
+	buf := make([]byte, 1024)
+	_, err = conn2.Read(buf)
+	if err != nil {
+		conn.Close()
+		return false
+	}
+	firstLine := strings.Split(string(session.GetOutBuffer().Bytes()[0:utils.Min(session.GetOutBuffer().Len(), 1024)]), "\n")[0]
 	//判断是遗漏的非标准HTTP请求
 	conn2 = utils.NewLoggedConn(
-		conn,
+		conn2,
 		io.MultiReader(bytes.NewReader(session.GetOutBuffer().Bytes()), conn2),
 		nil, //日志在上一层记录
 		0,

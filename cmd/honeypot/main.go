@@ -66,7 +66,7 @@ func main() {
 		//TODO MQ
 		config.GetPotConfig().HoneyLogPath = *honeyLogPath
 		if config.GetPotConfig().HoneyLogPath != "stdout" {
-			err := config.SetLogger(config.GetPotConfig().HoneyLogPath)
+			err := config.SetLogFile(config.GetPotConfig().HoneyLogPath)
 			if err != nil {
 				log.Fatalf("Failed to set honey log file: %s\n", err)
 			}
