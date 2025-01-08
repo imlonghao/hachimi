@@ -3,14 +3,14 @@ package logger
 import (
 	"encoding/json"
 	"hachimi/pkg/types"
-	"os"
+	"io"
 	"sync"
 	"time"
 )
 
 type JSONLLogger struct {
 	logChan  chan Loggable
-	writer   *os.File
+	writer   io.Writer
 	wg       sync.WaitGroup
 	buffer   []Loggable
 	maxSize  int
@@ -19,32 +19,17 @@ type JSONLLogger struct {
 }
 
 // NewJSONLLogger 创建 JSONLLogger
-func NewJSONLLogger(output string, bufferSize int, nodeName string) (*JSONLLogger, error) {
-	var file *os.File
-	var err error
-
-	switch output {
-	case "stdout":
-		file = os.Stdout
-	case "stderr":
-		file = os.Stderr
-	default:
-		file, err = os.OpenFile(output, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-		if err != nil {
-			return nil, err
-		}
-	}
-
+func NewJSONLLogger(output io.Writer, bufferSize int, nodeName string) *JSONLLogger {
 	logger := &JSONLLogger{
 		logChan:  make(chan Loggable, 100),
-		writer:   file,
+		writer:   output,
 		maxSize:  bufferSize,
 		buffer:   make([]Loggable, 0, bufferSize),
 		nodeName: nodeName,
 	}
 	logger.wg.Add(1)
 	go logger.processLogs()
-	return logger, nil
+	return logger
 }
 
 func (j *JSONLLogger) processLogs() {
@@ -59,7 +44,7 @@ func (j *JSONLLogger) processLogs() {
 			if !ok {
 				// 通道关闭，写入剩余日志
 				j.mu.Lock()
-				j.flush()
+				j.Flush()
 				j.mu.Unlock()
 				return
 			}
@@ -68,19 +53,19 @@ func (j *JSONLLogger) processLogs() {
 			j.buffer = append(j.buffer, log)
 			// 如果缓冲区已满，触发写入
 			if len(j.buffer) >= j.maxSize {
-				j.flush()
+				j.Flush()
 			}
 			j.mu.Unlock()
 		case <-ticker.C:
 			// 定时器触发，写入缓冲区中的日志
 			j.mu.Lock()
-			j.flush()
+			j.Flush()
 			j.mu.Unlock()
 		}
 	}
 }
 
-func (j *JSONLLogger) flush() {
+func (j *JSONLLogger) Flush() {
 	for _, log := range j.buffer {
 		jsonData, _ := json.Marshal(types.HoneyData{Type: log.Type(), Data: log, Time: time.Now().Unix(), NodeName: j.nodeName})
 		j.writer.Write(append(jsonData, '\n'))
@@ -96,8 +81,9 @@ func (j *JSONLLogger) Log(data Loggable) error {
 func (j *JSONLLogger) Close() error {
 	close(j.logChan)
 	j.wg.Wait()
-	if j.writer != os.Stdout && j.writer != os.Stderr {
-		return j.writer.Close()
+	// 判断 writer 是否是文件
+	if closer, ok := j.writer.(io.Closer); ok {
+		return closer.Close()
 	}
 	return nil
 }

@@ -79,12 +79,8 @@ func init() {
 		//MaxVersion:   tls.VersionTLS12,
 		//MinVersion:   tls.VersionSSL30,
 	}
-	var err error
-	SshPrivateKey, err = rsa.GenerateKey(rand.Reader, 2048)
-	jsonlLogger, err := logger.NewJSONLLogger("stdout", 100, GetNodeName())
-	if err != nil {
-		log.Fatalln("Failed to create JSONL logger:", err)
-	}
+	SshPrivateKey, _ = rsa.GenerateKey(rand.Reader, 2048)
+	jsonlLogger := logger.NewJSONLLogger(os.Stdout, 100, GetNodeName())
 	Logger = jsonlLogger
 }
 
@@ -114,7 +110,7 @@ func LoadConfig(filePath string) error {
 	// 设置全局日志处理器
 	if config.MQ == nil {
 		if config.HoneyLogPath != "" {
-			err := SetLogger(config.HoneyLogPath)
+			err := SetLogFile(config.HoneyLogPath)
 			if err != nil {
 				return err
 			}
@@ -152,14 +148,16 @@ func LoadConfig(filePath string) error {
 	potConfig = &config
 	return nil
 }
-func SetLogger(path string) error {
-	honeyLogger, err := logger.NewJSONLLogger(path, 100, GetNodeName())
+func SetLogFile(path string) error {
+	file, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
 	}
+	honeyLogger := logger.NewJSONLLogger(file, 100, GetNodeName())
 	Logger = honeyLogger
 	return nil
 }
+
 func LoadConfigFromString(data string) (*PotConfig, error) {
 	var config PotConfig
 	err := toml.Unmarshal([]byte(data), &config)

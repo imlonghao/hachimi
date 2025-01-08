@@ -45,7 +45,7 @@ func (o *NSQLogger) processLogs() {
 			if !ok {
 				// 通道关闭，写入剩余日志
 				o.mu.Lock()
-				o.flush()
+				o.Flush()
 				o.mu.Unlock()
 				return
 			}
@@ -54,24 +54,24 @@ func (o *NSQLogger) processLogs() {
 			o.buffer = append(o.buffer, log)
 			// 如果缓冲区已满，触发写入
 			if len(o.buffer) >= o.bufSize {
-				o.flush()
+				o.Flush()
 			}
 			o.mu.Unlock()
 		case <-ticker.C:
 			// 定时器触发，写入缓冲区中的日志
 			o.mu.Lock()
-			o.flush()
+			o.Flush()
 			o.mu.Unlock()
 		}
 	}
 
 	// Flush remaining logs
 	o.mu.Lock()
-	o.flush()
+	o.Flush()
 	o.mu.Unlock()
 }
 
-func (o *NSQLogger) flush() {
+func (o *NSQLogger) Flush() {
 	if len(o.buffer) == 0 {
 		return
 	}
