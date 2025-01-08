@@ -94,19 +94,19 @@ func MagicDistributor(conn net.Conn, session *types.Session) bool {
 
 		session.IsTls = true
 		session.SetOutBuffer(new(bytes.Buffer)) // 重置buffer 不记录tls原始数据
-		conn2 = utils.NewLoggedConn(
-			tlsServer.Conn,
-			tlsServer.Conn,
-			session.GetOutBuffer(),
-			config.GetLimitSize(),
-		)
 		// 重新读取magicByte 长度 10
 		magicByte = make([]byte, 10)
-		n, err = conn2.Read(magicByte)
+		n, err = tlsServer.Conn.Read(magicByte)
 		if err != nil {
 			io.ReadAll(conn2) //出错继续读取
 			return false
 		}
+		conn2 = utils.NewLoggedConn(
+			tlsServer.Conn,
+			io.MultiReader(bytes.NewReader(magicByte[0:n]), tlsServer.Conn),
+			session.GetOutBuffer(),
+			config.GetLimitSize(),
+		)
 	}
 	/* gmTLS */
 	/*deleted*/
