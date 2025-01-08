@@ -113,7 +113,7 @@ func MagicDistributor(conn net.Conn, session *types.Session) bool {
 	/* HTTP */
 	// 通过开头几个字节快速判断是否是HTTP请求
 	//CONNECT 为 HTTP 代理请求
-	if string(magicByte[0:5]) == "POST " || string(magicByte[0:4]) == "GET " || string(magicByte[0:5]) == "HEAD " || string(magicByte[0:8]) == "OPTIONS " || string(magicByte[0:7]) == "DELETE " || string(magicByte[0:4]) == "PUT " || string(magicByte[0:6]) == "TRACE " || string(magicByte[0:8]) == "CONNECT " {
+	if string(magicByte[0:5]) == "POST " || string(magicByte[0:4]) == "GET " || string(magicByte[0:5]) == "HEAD " || string(magicByte[0:8]) == "OPTIONS " || string(magicByte[0:7]) == "DELETE " || string(magicByte[0:4]) == "PUT " || string(magicByte[0:6]) == "TRACE " || string(magicByte[0:8]) == "CONNECT " || string(magicByte[0:6]) == "PATCH " {
 		if config.GetPotConfig().ForwardingRules != nil {
 			for _, rule := range *config.GetPotConfig().ForwardingRules {
 				if rule.Handler == "relay_http" && (rule.Port == 0 || rule.Port == conn.LocalAddr().(*net.TCPAddr).Port) {
