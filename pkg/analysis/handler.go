@@ -2,18 +2,20 @@ package analysis
 
 import (
 	"encoding/json"
-	"github.com/ClickHouse/clickhouse-go/v2"
-	"github.com/nsqio/go-nsq"
-	"github.com/oschwald/geoip2-golang"
-	"hachimi/pkg/analysis/model"
-	"hachimi/pkg/types"
-	"hachimi/pkg/utils"
-	"net"
-
 	"log"
+	"net"
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"hachimi/pkg/analysis/model"
+	"hachimi/pkg/types"
+	"hachimi/pkg/utils"
+
+	"github.com/ClickHouse/clickhouse-go/v2"
+	"github.com/mmcloughlin/geohash"
+	"github.com/nsqio/go-nsq"
+	"github.com/oschwald/geoip2-golang"
 )
 
 type PotMessageHandler struct {
@@ -29,13 +31,14 @@ type PotMessageHandler struct {
 	maxSize   int
 }
 
-func NewPotMessageHandler(bufferSize int, conn clickhouse.Conn, countryDb *geoip2.Reader, asnDb *geoip2.Reader) (*PotMessageHandler, error) {
+func NewPotMessageHandler(bufferSize int, conn clickhouse.Conn, countryDb *geoip2.Reader, cityDb *geoip2.Reader, asnDb *geoip2.Reader) (*PotMessageHandler, error) {
 	Handler := &PotMessageHandler{
 		logChan:   make(chan *types.HoneyData, 100),
 		buffer:    make([]*types.HoneyData, 0, bufferSize),
 		maxSize:   bufferSize,
 		conn:      conn,
 		countryDb: countryDb,
+		cityDb:    cityDb,
 		asnDb:     asnDb,
 	}
 	Handler.wg.Add(1)
@@ -122,28 +125,51 @@ func (h *PotMessageHandler) flush() {
 			session.Duration = int(data["duration"].(float64))
 
 			ip := net.ParseIP(session.SrcIP)
-			record, err := h.countryDb.Country(ip)
-			if err != nil {
-				log.Println(err)
-			} else {
-				CountryName := record.Country.Names["zh-CN"]
-				IsoCode := record.Country.IsoCode
 
-				if CountryName == "" {
-					CountryName = record.RegisteredCountry.Names["zh-CN"]
-					IsoCode = record.Country.IsoCode
+			if h.cityDb != nil {
+				record, err := h.cityDb.City(ip)
+				if err != nil {
+					log.Println(err)
+				} else {
+					// Country
+					CountryName := record.Country.Names["zh-CN"]
+					IsoCode := record.Country.IsoCode
+					if CountryName == "" {
+						CountryName = record.RegisteredCountry.Names["zh-CN"]
+						IsoCode = record.Country.IsoCode
+					}
+					session.CountryName = CountryName
+					session.IsoCode = IsoCode
+					// City
+					session.CityName = record.City.Names["en"]
+					session.GeoHash = geohash.Encode(record.Location.Latitude, record.Location.Longitude)
 				}
-				session.CountryName = CountryName
-				session.IsoCode = IsoCode
+			} else if h.countryDb != nil {
+				record, err := h.countryDb.Country(ip)
+				if err != nil {
+					log.Println(err)
+				} else {
+					CountryName := record.Country.Names["zh-CN"]
+					IsoCode := record.Country.IsoCode
+					if CountryName == "" {
+						CountryName = record.RegisteredCountry.Names["zh-CN"]
+						IsoCode = record.Country.IsoCode
+					}
+					session.CountryName = CountryName
+					session.IsoCode = IsoCode
+				}
 			}
 
-			record1, err := h.asnDb.ASN(ip)
-			if err != nil {
-				log.Println(err)
-			} else {
-				session.AsnOrg = record1.AutonomousSystemOrganization
-				session.AsnNumber = record1.AutonomousSystemNumber
+			if h.asnDb != nil {
+				record, err := h.asnDb.ASN(ip)
+				if err != nil {
+					log.Println(err)
+				} else {
+					session.AsnOrg = record.AutonomousSystemOrganization
+					session.AsnNumber = record.AutonomousSystemNumber
+				}
 			}
+
 			session.DataHash = utils.SHA1(session.Data)
 			logs["session"] = append(logs["session"], session)
 
@@ -175,29 +201,53 @@ func (h *PotMessageHandler) flush() {
 			http.Body = data["body"].(string)
 			http.Service = data["service"].(string)
 			http.Duration = int(data["duration"].(float64))
+
 			ip := net.ParseIP(http.SrcIP)
-			record, err := h.countryDb.Country(ip)
-			if err != nil {
-				log.Println(err)
-			} else {
-				CountryName := record.Country.Names["zh-CN"]
-				IsoCode := record.Country.IsoCode
 
-				if CountryName == "" {
-					CountryName = record.RegisteredCountry.Names["zh-CN"]
-					IsoCode = record.Country.IsoCode
+			if h.cityDb != nil {
+				record, err := h.cityDb.City(ip)
+				if err != nil {
+					log.Println(err)
+				} else {
+					// Country
+					CountryName := record.Country.Names["zh-CN"]
+					IsoCode := record.Country.IsoCode
+					if CountryName == "" {
+						CountryName = record.RegisteredCountry.Names["zh-CN"]
+						IsoCode = record.Country.IsoCode
+					}
+					http.CountryName = CountryName
+					http.IsoCode = IsoCode
+					// City
+					http.CityName = record.City.Names["en"]
+					http.GeoHash = geohash.Encode(record.Location.Latitude, record.Location.Longitude)
 				}
-				http.CountryName = CountryName
-				http.IsoCode = IsoCode
+			} else if h.countryDb != nil {
+				record, err := h.countryDb.Country(ip)
+				if err != nil {
+					log.Println(err)
+				} else {
+					CountryName := record.Country.Names["zh-CN"]
+					IsoCode := record.Country.IsoCode
+					if CountryName == "" {
+						CountryName = record.RegisteredCountry.Names["zh-CN"]
+						IsoCode = record.Country.IsoCode
+					}
+					http.CountryName = CountryName
+					http.IsoCode = IsoCode
+				}
 			}
 
-			record1, err := h.asnDb.ASN(ip)
-			if err != nil {
-				log.Println(err)
-			} else {
-				http.AsnOrg = record1.AutonomousSystemOrganization
-				http.AsnNumber = record1.AutonomousSystemNumber
+			if h.asnDb != nil {
+				record, err := h.asnDb.ASN(ip)
+				if err != nil {
+					log.Println(err)
+				} else {
+					http.AsnOrg = record.AutonomousSystemOrganization
+					http.AsnNumber = record.AutonomousSystemNumber
+				}
 			}
+
 			http.BodyHash = utils.SHA1(http.Body)
 			http.HeaderHash = utils.SHA1(http.RawHeader)
 			http.PathHash = utils.SHA1(http.Path)

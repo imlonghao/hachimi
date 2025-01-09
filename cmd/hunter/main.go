@@ -3,15 +3,17 @@ package main
 import (
 	"context"
 	"flag"
-	"github.com/ClickHouse/clickhouse-go/v2"
-	"github.com/oschwald/geoip2-golang"
-	"github.com/pelletier/go-toml"
+	"log"
+	"os"
+
 	"hachimi/pkg/analysis"
 	"hachimi/pkg/analysis/model"
 	"hachimi/pkg/config"
 	"hachimi/pkg/mq"
-	"log"
-	"os"
+
+	"github.com/ClickHouse/clickhouse-go/v2"
+	"github.com/oschwald/geoip2-golang"
+	"github.com/pelletier/go-toml"
 )
 
 var cityDb *geoip2.Reader
@@ -28,6 +30,7 @@ type HunterConfig struct {
 	DBName     string `toml:"db_name"`
 	// GeoLite
 	GeoLiteCountryPath string `toml:"geo_country"`
+	GeoLiteCityPath    string `toml:"geo_city"`
 	GeoLiteASNPath     string `toml:"geo_asn"`
 }
 
@@ -68,14 +71,22 @@ func main() {
 
 	countryDb, err = geoip2.Open(hunterConfig.GeoLiteCountryPath)
 	if err != nil {
-		log.Fatal(err)
+		log.Println("open country db error:", err)
+	} else {
+		defer countryDb.Close()
+	}
+	cityDb, err = geoip2.Open(hunterConfig.GeoLiteCityPath)
+	if err != nil {
+		log.Println("open city db error:", err)
+	} else {
+		defer cityDb.Close()
 	}
 	asnDb, err = geoip2.Open(hunterConfig.GeoLiteASNPath)
 	if err != nil {
-		log.Fatal(err)
+		log.Println("open asn db error:", err)
+	} else {
+		defer asnDb.Close()
 	}
-	defer countryDb.Close()
-	defer asnDb.Close()
 
 	// 创建 ClickHouse 客户端
 	conn, err := clickhouse.Open(&clickhouse.Options{
@@ -102,7 +113,7 @@ func main() {
 		log.Println(err)
 		return
 	}
-	hander, err := analysis.NewPotMessageHandler(1000, conn, countryDb, asnDb)
+	hander, err := analysis.NewPotMessageHandler(1000, conn, countryDb, cityDb, asnDb)
 
 	consumer.AddHandler(hander)
 	err = consumer.ConnectToNSQD(hunterConfig.MQ.Host)
