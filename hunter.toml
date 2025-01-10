@@ -4,6 +4,7 @@ db_name = "default"
 db_user = "default"
 db_password = "123456"
 #geo_country = "./GeoLite2-Country.mmdb"
+#geo_city = "./GeoLite2-City.mmdb"
 #geo_asn = "./GeoLite2-ASN.mmdb"
 # 消息队列配置
 [mq]

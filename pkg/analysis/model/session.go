@@ -3,8 +3,9 @@ package model
 import (
 	"context"
 	"fmt"
-	"github.com/ClickHouse/clickhouse-go/v2"
 	"time"
+
+	"github.com/ClickHouse/clickhouse-go/v2"
 )
 
 type Session struct {
@@ -29,6 +30,8 @@ type Session struct {
 	/* ip info */
 	IsoCode     string `ch_name:"iso_code" ch_type:"String"`
 	CountryName string `ch_name:"country_name" ch_type:"String"`
+	CityName    string `ch_name:"city_name" ch_type:"String"`
+	GeoHash     string `ch_name:"geo_hash" ch_type:"FixedString(12)"`
 	AsnNumber   uint   `ch_name:"asn_number" ch_type:"UInt32"`
 	AsnOrg      string `ch_name:"asn_org" ch_type:"String"`
 	/* hash */
@@ -58,6 +61,8 @@ func CreateTablesession() string {
 	duration UInt32,
 	iso_code String,
 	country_name String,
+	city_name String,
+	geo_hash FixedString(12),
 	asn_number UInt32,
 	asn_org String,
 	data_hash String
@@ -67,13 +72,13 @@ func CreateTablesession() string {
 }
 
 func InsertSession(conn clickhouse.Conn, Sessions []Session) error {
-	batch, err := conn.PrepareBatch(context.Background(), "INSERT INTO session (id, src_ip, src_port, dst_ip, dst_port, node_name, is_ipv6, is_tls, is_gm_tls, is_http, is_handled, protocol, data, service, start_time, end_time, duration, iso_code, country_name, asn_number, asn_org, data_hash)")
+	batch, err := conn.PrepareBatch(context.Background(), "INSERT INTO session (id, src_ip, src_port, dst_ip, dst_port, node_name, is_ipv6, is_tls, is_gm_tls, is_http, is_handled, protocol, data, service, start_time, end_time, duration, iso_code, country_name, city_name, geo_hash, asn_number, asn_org, data_hash)")
 	if err != nil {
 		return fmt.Errorf("failed to prepare batch: %w", err)
 	}
 
 	for _, session := range Sessions {
-		if err := batch.Append(session.ID, session.SrcIP, session.SrcPort, session.DstIP, session.DstPort, session.NodeName, session.IsIpV6, session.IsTls, session.IsGmTls, session.IsHttp, session.IsHandled, session.Protocol, session.Data, session.Service, session.StartTime, session.EndTime, session.Duration, session.IsoCode, session.CountryName, session.AsnNumber, session.AsnOrg, session.DataHash); err != nil {
+		if err := batch.Append(session.ID, session.SrcIP, session.SrcPort, session.DstIP, session.DstPort, session.NodeName, session.IsIpV6, session.IsTls, session.IsGmTls, session.IsHttp, session.IsHandled, session.Protocol, session.Data, session.Service, session.StartTime, session.EndTime, session.Duration, session.IsoCode, session.CountryName, session.CityName, session.GeoHash, session.AsnNumber, session.AsnOrg, session.DataHash); err != nil {
 			return fmt.Errorf("failed to append data: %w", err)
 		}
 	}
