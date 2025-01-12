@@ -2,11 +2,16 @@ package plugin
 
 import (
 	"bufio"
+	"bytes"
+	"crypto/sha1"
+	"encoding/base64"
+	"encoding/binary"
 	"fmt"
 	"github.com/fasthttp/router"
 	"github.com/valyala/fasthttp"
 	"hachimi/pkg/types"
 	"hachimi/pkg/utils"
+	"io"
 	"log"
 	"net"
 	"os"
@@ -109,6 +114,67 @@ func RequestHandler(plog *types.Http, ctx *fasthttp.RequestCtx) {
 		plog.Path += "#" + Hash
 
 	}
+	if ctx.Request.Header.Peek("Upgrade") != nil {
+		if string(ctx.Request.Header.Peek("Upgrade")) == "websocket" {
+			//ctx.Response.SetStatusCode(101)
+			//ctx.Response.Header.Set("Upgrade", "websocket")
+			//ctx.Response.Header.Set("Connection", "Upgrade")
+			key := string(ctx.Request.Header.Peek("Sec-WebSocket-Key"))
+			accept := CalcWebSocketAccept(key)
+			//ctx.Response.Header.Set("Sec-WebSocket-Accept", accept)
+			//ctx.Response.Header.Set("Sec-WebSocket-Version", "13")
+			// 不要使用 Hijack 接管连接
+			conn := ctx.Conn()
+			buf := ""
+			//conn.Write([]byte("HTTP/1.1 101 Switching Protocols\r\n"))
+			//conn.Write([]byte("Upgrade: websocket\r\n"))
+			//conn.Write([]byte("Connection: Upgrade\r\n"))
+			//conn.Write([]byte("Sec-WebSocket-Accept: " + accept + "\r\n"))
+			//conn.Write([]byte("Sec-WebSocket-Version: 13\r\n"))
+			//conn.Write([]byte("\r\n"))
+			buf += "HTTP/1.1 101 Switching Protocols\r\n"
+			buf += "Upgrade: websocket\r\n"
+			buf += "Connection: Upgrade\r\n"
+			buf += "Sec-WebSocket-Accept: " + accept + "\r\n"
+			buf += "Sec-WebSocket-Version: 13\r\n"
+			buf += "\r\n"
+			//因为有的客户端不HTTP头支持碎片化TCP数据包，所以这一次性发送
+			conn.Write([]byte(buf))
+
+			//io.Copy(io.Discard, conn)
+			plog.Body = ""
+
+			for {
+				// 读取并解析 WebSocket 帧
+				message, isClosed, err := readWebSocketFrame(conn)
+				if err != nil {
+					if err == io.EOF {
+						//fmt.Println("Connection closed")
+					} else {
+						//fmt.Println("Error reading frame:", err)
+					}
+					return
+				}
+				plog.Body += utils.EscapeBytes(message)
+				plog.Body += "-WS_DATA_END-" //TODO
+				// 如果客户端发送了关闭帧，退出处理
+				if isClosed {
+					return
+				}
+			}
+		} else if string(ctx.Request.Header.Peek("Upgrade")) == "IF-T/TLS 1.0" {
+			HandleIFTTLS(plog, ctx)
+			return
+
+		}
+
+	}
+	if strings.HasPrefix(plog.Path, "/dana-na") {
+		ctx.Response.Header.Set("Content-Type", "text/html")
+		ctx.Response.Header.Set("Server", "nginx/1.18.0 (Ubuntu)")
+		ctx.WriteString("<html><body>\n<PARAM NAME=\"ProductName\"     VALUE=\"PulseSecure_Host_Checker\">\n<PARAM NAME=\"ProductVersion\"  VALUE=\"22.7.1.907\">\n<PARAM NAME=\"DSSETUP_ALL_PARAMS\"     VALUE=\"DSSETUP_BUILD_VERSION;DSSETUP_DOWNLOAD_URL;DSSETUP_INSTALL_ROOT;DSSETUP_STARTUP_EXE;DSSETUP_UNINSTALL_EXE;DSSETUP_CLIENT_VERSION_PULSE;DSSETUP_CLIENT_VERSION;DSSETUP_SECURITY_PATCH;DSSETUP_REDIST;DSSETUP_COMP_MSVCR80;DSSETUP_COMP_MSVCP80;DSSETUP_COMP_MSATL80;DSSETUP_COMP_MSMFC80;BrowserType;BrowserProxy;BrowserProxySettings;DSIDCookie;DSPREAUTHCookie;ProductName;ProductVersion;DownloadPath;DownloadPath64;locale;enable_logging;DisplayName;PreviousNames;StartSessionReDir;UninstallReDir;ReDirURL;DisableCancel;AutoInstall;AdminPrivilegeRequired;InstallationRoot;IniFilePath;AutoStart;upgradeMode;UninstallSync;LaunchInstallerOnly;launchFromApplication;WaitStartTimeout;WaitEndTimeout;hotfix;CompatibleVersion;uploadlog;meeting_type;PleaseWaitTimeout;DSSETUP_DISABLE_LOGGING;DSSETUP_PROMPT_FOR_DOWNLOAD;DSSETUP_DEPENDENCIES;DSSETUP_REDIST_EXCLUDED;ProductManifest;DSSETUP_APP_VERSION_MIN;DSSETUP_APP_VERSION_MAX;SignInId;DSSETUP_AX_REVISION;DSSETUP_INSTALLER_PARAMETER;InstallerType\">\n<PARAM NAME=\"DSSETUP_BUILD_VERSION\"  VALUE=\"22.7.1.907\">\n<PARAM NAME=\"DSSETUP_DOWNLOAD_URL\"   VALUE=\"/dana-cached/sc/PSSetupClientInstaller.exe\">\n<PARAM NAME=\"DSSETUP_INSTALL_ROOT\"   VALUE=\"AppData\">\n<PARAM NAME=\"DSSETUP_STARTUP_EXE\"    VALUE=\"PulseSetupClient.exe\">\n<PARAM NAME=\"DSSETUP_UNINSTALL_EXE\"  VALUE=\"uninstall.exe\">\n<PARAM NAME=\"DSSETUP_CLIENT_VERSION_PULSE\" VALUE=\"22.7.1.907\">\n<PARAM NAME=\"DSSETUP_CLIENT_VERSION\" VALUE=\"8.1.102.61663\">\n<PARAM NAME=\"DSSETUP_SECURITY_PATCH\" VALUE=\"1\">\n<PARAM NAME=\"DSSETUP_REDIST\"         VALUE=\"DSSETUP_COMP_MSVCR80\"></body></html>")
+		return
+	}
 
 	if strings.HasPrefix(plog.Path, "/manager/html") {
 		tomcatManger(ctx)
@@ -134,7 +200,77 @@ func RequestHandler(plog *types.Http, ctx *fasthttp.RequestCtx) {
 func dlinkNas(ctx *fasthttp.RequestCtx) {
 	//删除
 }
+func CalcWebSocketAccept(key string) string {
+	const wsGUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
+	h := sha1.New()
+	h.Write([]byte(key + wsGUID))
+	return base64.StdEncoding.EncodeToString(h.Sum(nil))
+}
+func readWebSocketFrame(conn net.Conn) ([]byte, bool, error) {
+	// 读取第一个两个字节：FIN/Opcode 和 Payload len
+	header := make([]byte, 2)
+	if _, err := io.ReadFull(conn, header); err != nil {
+		return nil, false, err
+	}
 
+	fin := (header[0] & 0x80) != 0      // FIN 位
+	opcode := header[0] & 0x0F          // Opcode
+	mask := (header[1] & 0x80) != 0     // Mask 位
+	payloadLen := int(header[1] & 0x7F) // 初步 Payload 长度
+	isCloseFrame := opcode == 0x8       // Opcode 0x8 表示关闭帧
+
+	// 检查特殊帧（如关闭帧）
+	if isCloseFrame {
+		return nil, true, nil
+	}
+
+	// 处理扩展的 Payload 长度
+	if payloadLen == 126 {
+		// 2 字节的扩展长度
+		extended := make([]byte, 2)
+		if _, err := io.ReadFull(conn, extended); err != nil {
+			return nil, false, err
+		}
+		payloadLen = int(binary.BigEndian.Uint16(extended))
+	} else if payloadLen == 127 {
+		// 8 字节的扩展长度
+		extended := make([]byte, 8)
+		if _, err := io.ReadFull(conn, extended); err != nil {
+			return nil, false, err
+		}
+		payloadLen = int(binary.BigEndian.Uint64(extended))
+	}
+
+	// 读取 Mask Key（如果有）
+	var maskKey []byte
+	if mask {
+		maskKey = make([]byte, 4)
+		if _, err := io.ReadFull(conn, maskKey); err != nil {
+			return nil, false, err
+		}
+	}
+
+	// 读取 Payload 数据
+	payload := make([]byte, payloadLen)
+	if _, err := io.ReadFull(conn, payload); err != nil {
+		return nil, false, err
+	}
+
+	// 如果存在 Mask，需要对数据解码
+	if mask {
+		for i := 0; i < payloadLen; i++ {
+			payload[i] ^= maskKey[i%4]
+		}
+	}
+
+	// 返回解析后的 Payload 数据
+	if fin {
+		return payload, false, nil
+	} else {
+		// FIN 未设置（分片帧），本示例不处理
+		return nil, false, fmt.Errorf("fragmented frames not supported")
+	}
+}
 func portHandler(plog *types.Http, ctx *fasthttp.RequestCtx) bool {
 	isHandle := true
 	switch ctx.LocalAddr().(*net.TCPAddr).Port {
@@ -265,6 +401,87 @@ func notFound(ctx *fasthttp.RequestCtx) {
 	//setHeaders(ctx, headers)
 	ctx.SetContentType("text/html; charset=utf-8")
 	ctx.SetBodyString(strings.ReplaceAll(data2, "#{title}", nextTitle()))
+}
+
+// HandleIFTTLS CVE-2025-0282
+func HandleIFTTLS(plog *types.Http, ctx *fasthttp.RequestCtx) {
+	conn := ctx.Conn()
+	//conn.Write([]byte("HTTP/1.1 101 Switching Protocols\r\n"))
+	//conn.Write([]byte("Content-type: application/octet-stream\r\n"))
+	//conn.Write([]byte("Pragma: no-cache\r\n"))
+	//conn.Write([]byte("Upgrade: IF-T/TLS 1.0\r\n"))
+	//conn.Write([]byte("Connection: Upgrade\r\n"))
+	//conn.Write([]byte("Sec-WebSocket-Version: 13\r\n"))
+	//conn.Write([]byte("\r\n"))
+	//因为有的客户端不HTTP头支持碎片化TCP数据包，所以这一次性发送
+	buf := "HTTP/1.1 101 Switching Protocols\r\n"
+	buf += "Content-type: application/octet-stream\r\n"
+	buf += "Pragma: no-cache\r\n"
+	buf += "Upgrade: IF-T/TLS 1.0\r\n"
+	buf += "Connection: Upgrade\r\n"
+	buf += "Sec-WebSocket-Version: 13\r\n"
+	buf += "\r\n"
+	conn.Write([]byte(buf))
+	type Packet struct {
+		Vendor  uint32
+		Type    uint32
+		Length  uint32
+		SeqNo   uint32
+		Payload []byte
+	}
+	header := make([]byte, 16) // Fixed-size header (4 fields of 4 bytes each)
+	if _, err := io.ReadFull(conn, header); err != nil {
+		//fmt.Println("Error reading header:", err)
+		return
+	}
+	var Init bool
+	for {
+		var vendor, ptype, length, seqNo uint32
+		buffer := bytes.NewReader(header)
+		if err := binary.Read(buffer, binary.BigEndian, &vendor); err != nil {
+			//fmt.Println("Error reading vendor:", err)
+			break
+		}
+		if err := binary.Read(buffer, binary.BigEndian, &ptype); err != nil {
+			//fmt.Println("Error reading type:", err)
+			break
+		}
+		if err := binary.Read(buffer, binary.BigEndian, &length); err != nil {
+			//fmt.Println("Error reading length:", err)
+			break
+		}
+		if err := binary.Read(buffer, binary.BigEndian, &seqNo); err != nil {
+			//fmt.Println("Error reading seqNo:", err)
+			break
+		}
+		if length < 16 {
+			//fmt.Println("Invalid length:", length)
+			break
+
+		}
+		data := make([]byte, length-16)
+		var n int
+		var err error
+		if n, err = io.ReadFull(conn, data); err != nil {
+			if n > 0 {
+				plog.Body += utils.EscapeBytes(data[:n])
+			}
+
+			//fmt.Println("Error reading data:", err)
+			break
+		}
+		plog.Body += utils.EscapeBytes(data[:n])
+		//fmt.Printf("Vendor: %d, Type: %d, Length: %d, SeqNo: %d, Payload: %s\n", vendor, ptype, length, seqNo, data)
+		if !Init {
+
+			conn.Write([]byte("\x00\x00\x55\x97\x00\x00\x00\x02\x00\x00\x00\x14\x00\x00\x01\xf5\x00\x00\x00\x02"))
+			conn.Write([]byte("\x00\x00\x55\x97\x00\x00\x00\x05\x00\x00\x00\x14\x00\x00\x01\xf6\x00\x0a\x4c\x01"))
+			Init = true
+		}
+	}
+	// Parse the header
+	io.Copy(io.Discard, conn)
+	//plog.Body = ""
 }
 
 func tomcatManger(ctx *fasthttp.RequestCtx) {

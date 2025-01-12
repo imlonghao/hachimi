@@ -61,7 +61,7 @@ func HandleHttpRelay(src net.Conn, session *types.Session, configMap map[string]
 	s.NoDefaultContentType = true
 	s.ReadBufferSize = 1024 * 1024 * 5
 	s.DisableHeaderNamesNormalizing = true
-	s.DisableKeepalive = true
+	s.DisableKeepalive = false
 	httpLog.Service = service
 	s.Handler = func(fasthttpCtx *fasthttp.RequestCtx) {
 		// 在 requestHandlerFunc 中传递 ctx

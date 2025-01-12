@@ -53,9 +53,10 @@ func ServeHttp(c net.Conn, handler fasthttp.RequestHandler) error {
 	s.NoDefaultContentType = true
 	s.ReadBufferSize = 1024 * 1024 * 5
 	s.DisableHeaderNamesNormalizing = true
-	s.DisableKeepalive = true
+	s.DisableKeepalive = false
 	s.Handler = handler
 	err := s.ServeConn(c)
+	s.KeepHijackedConns = true
 	s.Handler = nil
 	serverPool.Put(v)
 	return err
