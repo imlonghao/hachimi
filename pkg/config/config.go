@@ -45,6 +45,8 @@ type PotConfig struct {
 	NodeIPV6 string `toml:"nodeIPV6"`
 	// MQ 消息队列配置
 	MQ *MQConfig `toml:"mq"`
+	// Debug 是否启用调试模式 会打印错误日志
+	Debug bool `toml:"debug"`
 }
 
 var potConfig *PotConfig
@@ -77,7 +79,7 @@ func init() {
 		//CipherSuites:       AllCiphers,
 		Certificates: []tls.Certificate{genCert()},
 		//MaxVersion:   tls.VersionTLS12,
-		//MinVersion:   tls.VersionSSL30,
+		MinVersion: tls.VersionSSL30,
 	}
 	SshPrivateKey, _ = rsa.GenerateKey(rand.Reader, 2048)
 	jsonlLogger := logger.NewJSONLLogger(os.Stdout, 100, GetNodeName())

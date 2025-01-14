@@ -11,6 +11,7 @@ import (
 	"hachimi/pkg/types"
 	"hachimi/pkg/utils"
 	"io"
+	"log"
 	"net"
 	"strings"
 	"time"
@@ -88,6 +89,9 @@ func MagicDistributor(conn net.Conn, session *types.Session) bool {
 		tlsServer := tls.NewTlsServer(conn2, session)
 		err := tlsServer.Handle()
 		if err != nil {
+			if config.GetPotConfig().Debug {
+				log.Printf("SESSION %s SRC %s:%d DST %s:%d TLS ERROR %s\n", session.ID, session.SrcIP, session.SrcPort, session.DstIP, session.DstPort, err)
+			}
 			io.ReadAll(conn) //出错继续读取
 			return false
 		}
