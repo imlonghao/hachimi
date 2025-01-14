@@ -47,6 +47,8 @@ type PotConfig struct {
 	MQ *MQConfig `toml:"mq"`
 	// Debug 是否启用调试模式 会打印错误日志
 	Debug bool `toml:"debug"`
+	//MaxSession 单一源IP最大会话数 限制单IP10分钟内建立的最大会话数
+	MaxSession int `toml:"maxSession"`
 }
 
 var potConfig *PotConfig

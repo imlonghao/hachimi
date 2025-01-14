@@ -19,8 +19,11 @@ type ListenerManager struct {
 	wg           *sync.WaitGroup
 }
 
+var connLimiter *session.ConnectionLimiter
+
 // NewListenerManager creates a new ListenerManager instance.
 func NewListenerManager() *ListenerManager {
+	connLimiter = session.NewConnectionLimiter(config.GetPotConfig().MaxSession)
 	return &ListenerManager{
 		wg: &sync.WaitGroup{},
 	}
@@ -79,6 +82,13 @@ func (m *ListenerManager) Wait() {
 	m.wg.Wait()
 }
 func DefaultTCPHandler(conn *net.TCPConn) {
+	if connLimiter != nil {
+		ip, _, _ := net.SplitHostPort(conn.RemoteAddr().String())
+		if !connLimiter.AllowConnection(ip) {
+			conn.Close()
+			return
+		}
+	}
 	sess := session.NewSession(conn, nil)
 	session.Distributor(conn, sess)
 	sess.EndTime = time.Now()
@@ -90,6 +100,13 @@ func DefaultTCPHandler(conn *net.TCPConn) {
 
 }
 func DefaultUDPHandler(conn *net.UDPConn, src *net.UDPAddr, buf []byte) {
+	if connLimiter != nil && src != nil {
+		ip, _, _ := net.SplitHostPort(src.String())
+		if !connLimiter.AllowConnection(ip) {
+			conn.Close()
+			return
+		}
+	}
 	sess := session.NewSession(conn, src)
 	//session.Distributor(conn, sess)
 	//TODO UDP 服务端

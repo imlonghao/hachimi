@@ -34,6 +34,7 @@ func Distributor(conn net.Conn, session *types.Session) bool {
 	//}
 	return MagicDistributor(conn, session)
 }
+
 func PortDistributor(conn net.Conn, session *types.Session) bool {
 	switch conn.LocalAddr().(*net.TCPAddr).Port {
 	/*
