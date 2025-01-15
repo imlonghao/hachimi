@@ -2,6 +2,7 @@ package ingress
 
 import (
 	"context"
+	"hachimi/pkg/config"
 	"log"
 	"net"
 	"sync"
@@ -26,7 +27,7 @@ func NewUDPListener(host string, port int) *UDPListener {
 }
 
 // Start begins listening for UDP packets on the specified address.
-func (u *UDPListener) Start(ctx context.Context, handler func(*net.UDPConn, *net.UDPAddr, []byte)) error {
+func (u *UDPListener) Start(ctx context.Context, handler func(*net.UDPConn, *net.UDPAddr, *net.UDPAddr, []byte)) error {
 	addr := &net.UDPAddr{
 		IP:   net.ParseIP(u.Host),
 		Port: u.Port,
@@ -67,14 +68,19 @@ func (u *UDPListener) Start(ctx context.Context, handler func(*net.UDPConn, *net
 					log.Printf("Failed to read UDP packet: %s\n", err)
 					continue
 				}
+				var dst *net.UDPAddr
 				if u.transport {
 					origDst, err := getOrigDst(oob, oobN)
 					if err == nil {
-						src = origDst
+						dst = origDst
+					} else {
+						if config.GetPotConfig().Debug {
+							log.Printf("Failed to get original destination: %s\n", err)
+						}
 					}
 				}
 
-				handler(u.conn, src, buf[:n])
+				handler(u.conn, src, dst, buf[:n])
 			}
 		}
 	}()

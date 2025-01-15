@@ -99,7 +99,7 @@ func DefaultTCPHandler(conn *net.TCPConn) {
 	sess.Close()
 
 }
-func DefaultUDPHandler(conn *net.UDPConn, src *net.UDPAddr, buf []byte) {
+func DefaultUDPHandler(conn *net.UDPConn, src *net.UDPAddr, dst *net.UDPAddr, buf []byte) {
 	if connLimiter != nil && src != nil {
 		ip, _, _ := net.SplitHostPort(src.String())
 		if !connLimiter.AllowConnection(ip) {
@@ -110,10 +110,11 @@ func DefaultUDPHandler(conn *net.UDPConn, src *net.UDPAddr, buf []byte) {
 	sess := session.NewSession(conn, src)
 	//session.Distributor(conn, sess)
 	//TODO UDP 服务端
-	if src != nil {
-		sess.SrcIP = src.IP.String()
-		sess.SrcPort = src.Port
+	if dst != nil {
+		sess.DstIP = dst.IP.String()
+		sess.DstPort = dst.Port
 	}
+
 	sess.EndTime = time.Now()
 	sess.Duration = int(sess.EndTime.Sub(sess.StartTime).Milliseconds())
 	sess.Data = utils.EscapeBytes(buf)
