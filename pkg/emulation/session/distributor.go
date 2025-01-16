@@ -6,6 +6,7 @@ import (
 	"hachimi/pkg/emulation/http"
 	"hachimi/pkg/emulation/redis"
 	"hachimi/pkg/emulation/relay"
+	"hachimi/pkg/emulation/rsync"
 	"hachimi/pkg/emulation/ssh"
 	"hachimi/pkg/emulation/tls"
 	"hachimi/pkg/types"
@@ -150,6 +151,12 @@ func MagicDistributor(conn net.Conn, session *types.Session) bool {
 		if redis.HandleRedis(conn2, session) {
 			return true
 		}
+	} else if string(magicByte[0:6]) == "@RSYNC" {
+		/* RSYNC */
+		session.Service = "rsync"
+		rsync.HandleRsync(conn2, session)
+		return true
+
 	} else {
 		/* Other */
 		//TODO BUFFER POOL
